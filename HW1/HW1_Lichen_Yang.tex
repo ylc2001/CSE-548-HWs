@@ -36,14 +36,14 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newcommand{\headings}[3]{{\large
-{\bf CSE548: Analysis of Algorithms, Fall 2025} \hfill {{\bf Release Date:} #1}\\
+{\bf CSE548: Analysis of Algorithms, Fall 2026} \hfill {{\bf Release Date:} #1}\\
 \rule[0.01in]{\textwidth}{0.025in}}
 \begin{center} {{\bf\huge{Homework \##2}}\\{\bf( Due Date: #3 )}} \end{center}
 }
 
 \begin{document}
 
-\headings{Sep 22}{1}{Oct 6}
+\headings{Oct 2}{1}{Oct 16}
 %\headings{{\underline{\hspace{1.5cm}\textcolor{white}{.}}}}{{\underline{\hspace{1cm}}}}{{\underline{\hspace{1.6cm}}}}
 \newcommand{\lecnum}{5}  % Lecture Number
 
@@ -114,10 +114,10 @@ Number        &  (e.g., specific group member? specific task/subtask?) \\ \hline
               &  Specifics \\
               &   (e.g., cite papers, webpages, etc. and mention why each was used) \\ \hline\hline
               &                                      \\ 
-    $1.$      &                                      \\ 
+    $1.$      & Labib et al., CPM 2019, Theorem 19 (Task 1 bucketing). \\ 
               &                                      \\ \hline
               &                                      \\ 
-    $2.$      &                                      \\ 
+    $2.$      & OpenAI Codex: derivation, writing, and verification. \\ 
               &                                      \\ \hline
               &                                      \\ 
     $3.$      &                                      \\ 
@@ -136,293 +136,319 @@ Number        &  (e.g., specific group member? specific task/subtask?) \\ \hline
 
 
 \newpage
+\section*{Task 1. Minimizing the distance between two pegged frames}
 
-\section*{Task 1. Minimizing the Distance Between Two Pegged Frames}
+Let $A_u,B_v$ be the heights at $u,v\in\{0,\ldots,n-1\}^2$, and put $N=n^2$.
+We minimize the permitted separation without interpenetration; touching is
+allowed.\footnote{We interpret $\alpha^p+\alpha^q$ as restricting feasible
+separations. Requiring exact first contact as well can make the problem
+unsolvable: for $n=1$, heights $1,6$, and $\alpha=2$, contact occurs at $7$,
+which is not a sum of two nonnegative powers of $2$.}
 
-Let $A_{ij}$ and $B_{ij}$ be the bottom and top peg heights, respectively,
-with indices $0\leq i,j<n$. Take the cell side length as the horizontal unit.
-For an integer translation $(s,t)$ of the top frame, define
+\textbf{Reduce to integer shifts.}
+For a fractional displacement, overlapping pairs come from neighboring
+integer displacements. Rounding both coordinates toward zero retains a
+nonempty subset of those pairs, so cannot increase the required separation.
+Thus it suffices to use
+$s\in\{-(n-1),\ldots,n-1\}^2$, with
 \[
- D(s,t)=\max_{\substack{0\leq i,j<n\\0\leq i+s,j+t<n}}
-       \bigl(B_{ij}+A_{i+s,j+t}\bigr).
+ H(s)=\max_{v-u=s}(A_u+B_v),\qquad h=\min_s H(s).
 \]
-This is the first-contact distance: overlapping pegs do not penetrate each
-other exactly when the distance between bases is at least their height sum.
+All these shifts have nonempty overlap. We first compute $h$ exactly, without
+rounding individual heights.
 
-\textbf{Algorithm.} Enumerate every
-$(s,t)\in\{-(n-1),\ldots,n-1\}^2$. For each translation, scan all $n^2$
-top cells, take the maximum over valid overlapping pairs, and retain
+\textbf{A fast feasibility test (dominance matching \cite{dominance}).}
+For a threshold $d$, compute the number of violating pairs at every shift:
 \[
- D_* =\min_{s,t}D(s,t).
+ C_d(s)=\sum_{v-u=s}{\bf1}[A_u+B_v>d].
 \]
-Let $H$ be the maximum input peg height and
-$K=\lceil\log_\alpha(2H)\rceil$. Return
+Then $d\ge h$ if and only if some $C_d(s)=0$.
+Sort the $N$ top cells by height and partition them into consecutive blocks
+of at most $b$ cells, retaining their original coordinates. Handle violations
+as follows.
+\begin{enumerate}
+\item For each block $I$, let $a_I$ be its minimum height. Form two binary
+grids $X_I(u)={\bf1}[u\in I]$ and
+$Y_I(v)={\bf1}[a_I+B_v>d]$. Add their cross-correlation
 \[
- \boxed{\min\{\alpha^p+\alpha^q:
-                  0\leq p,q\leq K,\ \alpha^p+\alpha^q\geq D_*\}.}
+ (X_I\star Y_I)(s)=\sum_{v-u=s}X_I(u)Y_I(v)
 \]
-An attaining translation can also be retained during the scan.
-
-\textbf{Correctness.} For a noninteger horizontal displacement $x$, cell
-overlaps involve the two integer offsets $\lfloor x\rfloor$ and
-$\lceil x\rceil$; for an integer displacement, only that offset is needed.
-The same holds independently in the other direction. Since the frames
-overlap, one can choose a valid offset in each direction from
-$\{-(n-1),\ldots,n-1\}$. The cell pairs at this integer translation are a
-subset of those at the original translation. Ignoring the negligible cell
-boundaries, its first-contact distance is therefore no larger.
-Thus $D_*$ is the optimum over all allowed translations, including
-fractional ones. A distance $d$ is feasible for some translation if and
-only if $d\geq D_*$, which proves the final minimization.
-
-The candidate $1+\alpha^K$ is feasible because $D_*\leq2H\leq\alpha^K$.
-Any candidate with an exponent greater than $K$ exceeds this candidate,
-so the finite search includes an optimum.
-
-\textbf{Complexity.} There are $(2n-1)^2$ translations, and each scans
-$n^2$ cells: $\Theta(n^4)$ time. The final search costs $O(K^2)$, independent
-of $n$ under the given bounded-height assumption (for fixed $\alpha>1$).
-The algorithm uses $O(1)$ auxiliary space, excluding the input.
+to $C_d$, using FFT after reversing $X_I$ and padding both dimensions to at
+least $2n-1$. This counts whole blocks of violations for each bottom cell.
+\item For each bottom cell $v$, binary-search the sorted top heights for the
+first height greater than $d-B_v$. If it lies strictly inside a block,
+explicitly add the violating pairs in that block to their shifts $v-u$.
+There are at most $b$ such pairs per bottom cell.
+\end{enumerate}
+For a fixed $v$, the violating top heights form a suffix: whole blocks are
+counted in step 1, and its only possible partial block in step 2. Hence every
+violation is counted exactly once, including when heights repeat.
+The test costs
+\[
+ O\!\left(\frac{N^2\log N}{b}+Nb+N\log N\right)
+ =O(N^{3/2}\sqrt{\log N})
+\]
+with $b=\min\{N,\lceil\sqrt{N\log N}\rceil\}$ for $N\ge2$.
+Process the convolutions one at a time to use $O(N)$ space.
 
 \newpage
-\section*{Task 2. Multiplying $3\times3$ Matrices}
+\textbf{Find the exact threshold without listing $N^2$ sums.}
+Let $a_1\le\cdots\le a_N$ and $b_1\le\cdots\le b_N$ be the sorted heights.
+Since $h$ is one of the sums $a_i+b_j$, search these $N$ sorted rows implicitly.
+Keep an interval of remaining indices in each row and an incumbent
+$z=+\infty$. Repeat:
+\begin{enumerate}
+\item Take each nonempty row's middle value, weighted by the number of its
+remaining entries, and let $d$ be a weighted median of these values.
+\item If $d$ is feasible, set $z=\min(z,d)$ and discard all entries $\ge d$.
+Otherwise discard all entries $\le d$. Locate each row's new endpoint by
+binary search.
+\end{enumerate}
+When no entries remain, return $h=z$. The invariant is that the optimum is
+either the incumbent or a remaining entry. In either branch, rows whose
+midpoints lie on the discarded side have at least half the total weight;
+at least half of each such row is discarded. Thus at least one quarter of
+all remaining entries disappear per iteration. There are $O(\log N)$ tests,
+with $O(N\log N)$ additional work per iteration. Consequently,
+\[
+ \text{time to find }h=O(N^{3/2}\log^{3/2}N)
+ =O(n^3\log^{3/2}n),\qquad \text{space}=O(n^2).
+\]
 
-\textbf{(a)} No: the displayed algorithm is correct for commuting scalars.
-For any row $i$, expansion and cancellation give
+\textbf{Use the restriction $\alpha^p+\alpha^q$.}
+Since all heights are at least $1$, $h\ge2$. Write $p\ge q\ge0$ and define
+\[
+ L=\left\lceil\log_\alpha(h/2)\right\rceil,
+ \qquad U=\left\lceil\log_\alpha(h-1)\right\rceil.
+\]
+For each integer $p\in[L,U]$, set
+\[
+ q_p=\begin{cases}
+ 0,&h-\alpha^p\le1,\\
+ \left\lceil\log_\alpha(h-\alpha^p)\right\rceil,&h-\alpha^p>1.
+ \end{cases}
+ \qquad
+ \boxed{D=\min_{L\le p\le U}\bigl(\alpha^p+\alpha^{q_p}\bigr).}
+\]
+This range is complete: $p<L$ gives $\alpha^p+\alpha^q<h$, whereas
+$p>U$ is worse than the feasible candidate $\alpha^U+1$.
+For every remaining $p$, the displayed $q_p$ is the smallest feasible
+exponent and satisfies $q_p\le p$. Therefore $D$ is exactly the smallest
+allowed feasible separation, not an approximation obtained by rounding pegs.
+The number of candidates is at most $2+\lceil\log_\alpha2\rceil$.
+
+For fixed $\alpha>1$, the total running time is
+\[
+ \boxed{O(n^3\log^{3/2}n)=o(n^4).}
+\]
+If $\alpha$ varies with the input, retain the additive
+$O(1+\log_\alpha2)$ term. These are arithmetic-operation bounds, with
+power/logarithm evaluation counted at unit cost; exact power comparisons
+resolve logarithm endpoints. Binary convolutions compute integer counts
+exactly (using sufficient FFT precision). For $n=1$, simply take
+$h=A_{00}+B_{00}$ and apply the same rounding step.
+
+\newpage
+\section*{Task 2. Multiplying $3\times3$ matrices}
+
+\textbf{(a)} No counterexample exists for commuting scalar entries.
+For any row $i$, write $(x,y,z)=(a_{i1},a_{i2},a_{i3})$ and subtract the
+shared products first:
 \begin{align*}
- p_{i4}+p_{i1}+p_{i2}-q_1-q_2
-    &=a_{i1}b_{11}+a_{i2}b_{21}+a_{i3}b_{31},\\
- p_{i5}+p_{i1}+p_{i3}-q_1-q_3
-    &=a_{i1}b_{12}+a_{i2}b_{22}+a_{i3}b_{32},\\
- p_{i6}+p_{i2}+p_{i3}-q_2-q_3
-    &=a_{i1}b_{13}+a_{i2}b_{23}+a_{i3}b_{33}.
+ p_{i1}-q_1&=xy+yb_{21}+xb_{12},\\
+ p_{i2}-q_2&=xz+zb_{31}+xb_{13},\\
+ p_{i3}-q_3&=yz+zb_{32}+yb_{23}.
 \end{align*}
-These are precisely the three entries in row $i$ of $AB$.
-The three $q$ products and six products per row total $21$ scalar products.
+Substituting these into the three recovery formulas cancels every unwanted
+term and gives
+\[
+ (c_{i1},c_{i2},c_{i3})
+ =(xb_{11}+yb_{21}+zb_{31},\;
+   xb_{12}+yb_{22}+zb_{32},\;
+   xb_{13}+yb_{23}+zb_{33}).
+\]
+Thus the $3+3\cdot6=21$ scalar multiplications do compute $AB$.
 
-\textbf{(b)} This algorithm cannot be used as a Strassen-style recursive
-block algorithm: square matrix blocks generally do not commute.
-For example, with $B=0$, expansion in a noncommutative ring yields
+\textbf{(b)} The formulas cannot be used recursively on general matrix
+blocks, because their cancellations require commutativity.
+For example, set all blocks of $B$ to zero, set
+$A_{11}=X$, $A_{12}=Y$, and set all other blocks of $A$ to zero.
+The proposed formula returns
 \[
- \widehat c_{i1}
- =a_{i2}a_{i1}-a_{i1}a_{i2}
-  +a_{i3}a_{i1}-a_{i1}a_{i3},
+ C_{11}=-XY+YX,
 \]
-which need not be zero. Take $3\times3$ blocks $X=E_{11}$ and $Y=E_{12}$,
-where $E_{ij}$ has a single $1$ in position $(i,j)$, and set
+although the correct product is zero. Taking
 \[
- A=\begin{pmatrix}X&Y&0\\0&0&0\\0&0&0\end{pmatrix},
- \qquad B=0_{9\times9}.
+ X=\begin{pmatrix}0&1\\0&0\end{pmatrix},\qquad
+ Y=\begin{pmatrix}0&0\\1&0\end{pmatrix}
 \]
-Here $XY=Y$ and $YX=0$. The proposed block formulas return
-$\widehat C_{11}=YX-XY=-Y\ne0$, although $AB=0$.
-Hence even the $n=9=3^2$ recursive construction fails.
-The formal recurrence $T(n)=21T(n/3)+\Theta(n^2)$ would give
-$\Theta(n^{\log_3 21})=o(n^{\log_2 7})$, but it describes an incorrect
-matrix multiplication algorithm; the scalar identities do not justify it.
+gives $YX-XY=\operatorname{diag}(-1,1)\ne0$.
+Embedding these matrices into the upper-left corner of $3\times3$ blocks
+gives the same failure for $n=9=3^2$.
+Although the formal recurrence $T(n)=21T(n/3)+\Theta(n^2)$ would give
+$\Theta(n^{\log_3 21})=o(n^{\log_2 7})$, it describes an incorrect block
+algorithm. Unlike Strassen's identities, these identities do not hold over
+noncommutative rings.
+
+\section*{Task 3. Strassen under memory constraints}
+
+\textbf{(a)} For the usual implementation that materializes temporary
+matrices, the minimum asymptotic extra space is $\boxed{\Theta(n^2)}$,
+excluding the input and output matrices. A constant number of
+$(n/2)\times(n/2)$ buffers suffices: compute the seven products sequentially
+and immediately accumulate each into its output blocks. Reuse the buffers,
+so the peak auxiliary space satisfies
+\[
+ S(n)=S(n/2)+\Theta(n^2)=\Theta(n^2).
+\]
+Conversely, even one materialized half-size temporary requires
+$\Omega(n^2)$ space. This bound concerns the temporary-matrix model in the
+question, rather than algorithms that overwrite inputs or recompute entries.
 
 \newpage
-\section*{Task 3. Strassen's Algorithm Under Memory Constraints}
+\textbf{(b)} Initialize $C=0$ and call the accumulating procedure below.
+At every recursive call, try to reserve three half-size buffers. If this
+fails, perform the ordinary eight recursive block products directly into
+views of $C$. Each child tries again, so later memory becomes useful even
+after an ancestor's allocation failed.
 
-\textbf{(a)} For the usual Strassen implementation that forms temporary
-matrix sums while preserving the inputs, the minimum asymptotic extra
-space is $\boxed{\Theta(n^2)}$, excluding the input and output matrices.
-Compute the seven products sequentially, using just three reusable
-$(n/2)\times(n/2)$ buffers: two operands $X,Y$ and their product $P$.
-Immediately add each $P$ to the appropriate output blocks, then reuse it.
-Only one child call is active at a time, so
+\begin{verbatim}
+Accumulate(A, B, C):                 // C <- C + A B
+    n <- number of rows of A
+    if n = 1:
+        C[0,0] <- C[0,0] + A[0,0] * B[0,0]; return
+    partition A, B, C into four block views each
+    buffers <- TryAllocate(3 * (n/2)^2 entries)
+    if buffers succeeded:
+        (X, Y, P) <- buffers
+        for each of the seven rules in the table below:
+            fill X and Y with the indicated operands
+            set P to zero
+            Accumulate(X, Y, P)
+            apply the indicated signed updates to C
+        free buffers
+    else:
+        for i, j, k in {1,2}^3:
+            Accumulate(A[i,k], B[k,j], C[i,j])
+\end{verbatim}
+
 \[
- S(n)=3(n/2)^2+S(n/2),\qquad S(1)=0.
+\begin{array}{c|l|l|l}
+ &X&Y&\text{updates after }P\leftarrow XY\\ \hline
+1&A_{11}+A_{22}&B_{11}+B_{22}&C_{11}\mathrel{+}=P,\ C_{22}\mathrel{+}=P\\
+2&A_{21}+A_{22}&B_{11}&C_{21}\mathrel{+}=P,\ C_{22}\mathrel{-}=P\\
+3&A_{11}&B_{12}-B_{22}&C_{12}\mathrel{+}=P,\ C_{22}\mathrel{+}=P\\
+4&A_{22}&B_{21}-B_{11}&C_{11}\mathrel{+}=P,\ C_{21}\mathrel{+}=P\\
+5&A_{11}+A_{12}&B_{22}&C_{11}\mathrel{-}=P,\ C_{12}\mathrel{+}=P\\
+6&A_{21}-A_{11}&B_{11}+B_{12}&C_{22}\mathrel{+}=P\\
+7&A_{12}-A_{22}&B_{21}+B_{22}&C_{11}\mathrel{+}=P
+\end{array}
 \]
-For $n=2^k$, the buffers occupy $n^2-1$ scalar slots in total; the recursion
-stack adds $O(\log n)$ words. Forming even one dense temporary block already
-requires $\Omega(n^2)$ extra space in this implementation. The exact constant
-depends on the buffer schedule.
 
-\textbf{(b)} Use an accumulating operation $\operatorname{Add}(A,B,C,s)$
-that performs $C\leftarrow C+AB$ for $s\times s$ matrices. Allocate the output
-once and initialize it to zero. A nonblocking allocation attempt either
-reserves all three local buffers or releases any partial reservation and
-returns failure. Matrix blocks below are views, so taking a block allocates
-no matrix storage. Assume $n$ is a power of two, or pad it to the next one.
+Both branches preserve $C\leftarrow C+AB$: one uses Strassen's identities,
+the other uses $(AB)_{ij}=\sum_k A_{ik}B_{kj}$. Induction proves correctness
+regardless of the allocation outcomes. Calls never wait, and both branches
+reduce the matrix size, so the algorithm always finishes. As usual, allocated
+buffers remain valid until freed, and input/output storage and the recursion
+stack are available. Block views require no matrix copies.
 
-\begin{verbatim}
-ClassicalAdd(A, B, C, s):
-    for i = 0,...,s-1:
-        for j = 0,...,s-1:
-            for k = 0,...,s-1:
-                C[i,j] += A[i,k] * B[k,j]
-
-Add(A, B, C, s):
-    if s == 1: C[0,0] += A[0,0]*B[0,0]; return
-    if TryStrassenAdd(A, B, C, s): return
-    b = s/2
-    for I = 0,1:
-        for J = 0,1:
-            for K = 0,1:
-                (a,bmat,c) = (A[I,K], B[K,J], C[I,J])
-                if b > 1 and TryStrassenAdd(a,bmat,c,b):
-                    continue
-                ClassicalAdd(a,bmat,c,b)
-\end{verbatim}
-
-\begin{minipage}{\textwidth}
-\begin{verbatim}
-TryStrassenAdd(A, B, C, s):
-    W = try_allocate(3*(s/2)^2 scalar slots)
-    if W failed: return false
-    partition W into X, Y, P
-    for each row (L, R, destinations) of the table below:
-        X = L; Y = R; P = 0
-        Add(X, Y, P, s/2)
-        add or subtract P at the listed destinations
-    free W
-    return true
-
-Multiply(A, B, C, n):
-    C = 0
-    Add(A, B, C, n)
-\end{verbatim}
-\end{minipage}
-
-\begin{center}
-\begin{tabular}{c|c|c|l}
-Product & $L$ & $R$ & Output updates \\ \hline
-$M_1$ & $A_{11}+A_{22}$ & $B_{11}+B_{22}$ & $C_{11}{+}=P,\ C_{22}{+}=P$ \\
-$M_2$ & $A_{21}+A_{22}$ & $B_{11}$ & $C_{21}{+}=P,\ C_{22}{-}=P$ \\
-$M_3$ & $A_{11}$ & $B_{12}-B_{22}$ & $C_{12}{+}=P,\ C_{22}{+}=P$ \\
-$M_4$ & $A_{22}$ & $B_{21}-B_{11}$ & $C_{11}{+}=P,\ C_{21}{+}=P$ \\
-$M_5$ & $A_{11}+A_{12}$ & $B_{22}$ & $C_{11}{-}=P,\ C_{12}{+}=P$ \\
-$M_6$ & $A_{21}-A_{11}$ & $B_{11}+B_{12}$ & $C_{22}{+}=P$ \\
-$M_7$ & $A_{12}-A_{22}$ & $B_{21}+B_{22}$ & $C_{11}{+}=P$
-\end{tabular}
-\end{center}
-
-On allocation failure, the call switches to the standard iterative blocked
-product. Each of its eight block contributions is computed immediately;
-it never waits. Before the next block contribution, it can try Strassen
-again, allowing even an initially failing root call to exploit memory
-that becomes available later. A failed block attempt uses the scalar
-triple loop directly. Reserved memory remains valid until it is freed.
-
-\textbf{Correctness and bounds.} A successful attempt uses Strassen's
-identities; a failed attempt changes no entries. The fallback computes
-$C_{IJ}\leftarrow C_{IJ}+\sum_K A_{IK}B_{KJ}$, with each contribution added
-exactly once. Induction on $s$ proves correctness for every allocation
-pattern. Every path makes progress. With ample memory the time is
-$\Theta(n^{\log_2 7})$; with no temporary matrix memory it is
-$\Theta(n^3)$. Arbitrary allocation patterns take $O(n^3)$ time and use at
-most $O(n^2)$ extra matrix storage, plus the recursion stack.
+If all allocations succeed, time is $\Theta(n^{\log_2 7})$; if all fail, it
+is $\Theta(n^3)$ with only $O(\log n)$ stack space beyond the inputs and
+output. Any mixture takes $O(n^3)$ time and at most $O(n^2)$ temporary space.
+Zero-padding to the next power of two handles other sizes.
 
 \newpage
-\section*{Task 4. A New Transform}
+\section*{Task 4. A new transform}
 
-Write $F_n(u)$ for the transform, and let $u=(a,b)$ be its two halves.
-Every call restores its input: by induction the first recursive call
-restores $b$, the second restores $a+b$, and the saved $a$ is copied back
-before the last recursive call, which restores it. Therefore the three
-output blocks, in their actual order, are
+Write $u=(u_0,u_1)$, with both halves of length $m=n/2$, and let $F_n$
+denote the given transform. The code restores its input before returning:
+the high half is restored recursively, and the low half is explicitly saved
+and restored. Its output is therefore
 \[
- \boxed{F_n(a,b)=\bigl(F_{n/2}(a+b),\ F_{n/2}(a),\ F_{n/2}(b)\bigr).}
+ F_n(u)=\bigl(F_m(u_0+u_1),\ F_m(u_0),\ F_m(u_1)\bigr),
+ \qquad F_1(u)=u.
 \]
-This identity also establishes linearity of $F_n$.
+The three blocks appear in precisely this order.
 
-\textbf{(a)} For $n=2^k$, the loop computes
-$r=3^{k-1}$, the length of one output block. Thus
+\textbf{(a)} Each output block has length
+$r=3^{\log_2m}$, the value computed by the loop. Thus
 \[
- L(1)=1,\quad L(n)=3L(n/2),\quad
- \boxed{n_v=L(n)=3^k=n^{\log_2 3}}.
+ n_v=3^{\log_2 n}=n^{\log_2 3},\qquad
+ T(n)=3T(n/2)+\Theta(n)=\boxed{\Theta(n^{\log_2 3})}.
 \]
-The three recursive calls, two length-$n/2$ loops, and the $O(\log n)$
-offset loop give
-\[
- T(n)=3T(n/2)+\Theta(n),\qquad
- \boxed{T(n)=\Theta(n^{\log_2 3})}.
-\]
+The $O(\log n)$ loop overhead is absorbed by the linear copying work.
 
-\textbf{(b)} The backward transform has a mode parameter $d$. For $d=1$
-it inverts a single forward transform and returns the original length-$n$
-vector. For use in part (c), we also define $d=2$: on input
-$F_n(a)\odot F_n(b)$, where $\odot$ denotes entrywise multiplication,
-it reconstructs the $2n-1$ coefficients of the product of the polynomials
-represented by $a$ and $b$. This is an extension of the backward operation
-to product data; the two modes have different reconstruction rules.
-Indices are zero-based, and the initial value of $\ell$ is $L(n)$.
+\textbf{(b)} The last two blocks already encode the two original halves,
+so an inverse need not read the redundant first block. The following
+backward transform has a default mode $d=1$ for inversion and a mode $d=2$
+for products, used in part (c). It returns coefficient arrays, viewed as
+polynomials; multiplying by $x^m$ means shifting an array by $m$ positions.
 
 \begin{verbatim}
-BackwardTransform(v, iv, w, iw, n, ell, d = 1):
-    if n == 1: w[iw] = v[iv]; return
-    m = n/2; r = ell/3
-    if d == 1:
-        BackwardTransform(v, iv+r,   w, iw,   m, r, 1)
-        BackwardTransform(v, iv+2*r, w, iw+m, m, r, 1)
-        return
-    allocate S, L, H, each of length 2*m-1
-    BackwardTransform(v, iv,     S, 0, m, r, 2)
-    BackwardTransform(v, iv+r,   L, 0, m, r, 2)
-    BackwardTransform(v, iv+2*r, H, 0, m, r, 2)
-    w[iw : iw+2*n-2] = 0
-    for t = 0,...,2*m-2:
-        w[iw+t]     += L[t]
-        w[iw+m+t]   += S[t] - L[t] - H[t]
-        w[iw+2*m+t] += H[t]
-    free S, L, H
+BackwardTransform(v, n, d = 1):
+    if n = 1: return [v[0]]
+    m <- n/2; r <- 3^(log_2 m)
+    split v into consecutive blocks (vS, vL, vH) of length r
+    L <- BackwardTransform(vL, m, d)
+    H <- BackwardTransform(vH, m, d)
+    if d = 1:
+        return L + x^m H
+    S <- BackwardTransform(vS, m, 2)
+    return L + x^m (S - L - H) + x^(2m) H
 \end{verbatim}
 
-For the inverse requested in this part, allocate a length-$n$ output
-array $u$ and call
+For ordinary inversion, induction gives $L=u_0$ and $H=u_1$; the returned
+array is exactly their concatenation. With indexed output slices, the two
+recursive calls write directly into the two halves of $u$, giving
 \[
- \operatorname{BackwardTransform}(v,0,u,0,n,L(n),1).
+ B_1(n)=2B_1(n/2)+O(1)=\boxed{\Theta(n)}.
 \]
-The second and third blocks are $F_{n/2}(a)$ and $F_{n/2}(b)$.
-Induction shows that their inverses write $a$ and $b$ into the two halves
-of $u$, recovering the original vector. The output is allocated only once,
-and no array copying is needed. Thus
-\[
- B_1(n)=2B_1(n/2)+\Theta(1)=\boxed{\Theta(n)}.
-\]
-The stack uses $O(\log n)$ space, excluding the output.
-The product mode is justified in part (c); it reads all three blocks
-and takes $\Theta(n^{\log_2 3})$ time.
+This is optimal for writing $n$ coefficients. The transformed vector is
+assumed valid; checking all its redundant entries is unnecessary. Literal
+array-copying concatenation would instead take $\Theta(n\log n)$.
 
-\textbf{(c)} Pad both coefficient vectors to a common power-of-two length
-$N=\Theta(n)$ large enough for all input coefficients (use $N\geq n+1$
-if degree bound $n$ includes degree $n$). Apply the given forward transform:
+\textbf{(c)} Pad the coefficient arrays to a common power-of-two length $n$
+(or $O(n)$ if padding is needed). Compute
 \[
- f=F_N(a),\qquad g=F_N(b),\qquad h_j=f_jg_j
- \quad(0\leq j<L(N)).
+ v_A=\operatorname{ForwardTransform}(A),\quad
+ v_B=\operatorname{ForwardTransform}(B),\quad
+ w_i=(v_A)_i(v_B)_i.
 \]
-Allocate a length-$(2N-1)$ output array $c$ and call the backward transform
-from (b) in product mode:
-\[
- \boxed{\operatorname{BackwardTransform}(h,0,c,0,N,L(N),2).}
-\]
-The output contains the coefficients of $AB$; discard only trailing
-coefficients beyond its degree bound. This uses both transforms, with
-product mode supplying the reconstruction rule for entrywise products.
+Return $\operatorname{BackwardTransform}(w,n,2)$, of length $2n-1$.
 
-For correctness, write $A=A_0+x^mA_1$ and $B=B_0+x^mB_1$, where $m=N/2$.
-The three blocks of $h$ are the entrywise products of the transforms of
-$(a_0+a_1,b_0+b_1)$, $(a_0,b_0)$, and $(a_1,b_1)$, respectively.
-By induction, the recursive backward calls reconstruct
+\newpage
+To see why the product mode works, write
+$A=A_0+x^mA_1$ and $B=B_0+x^mB_1$. The three blocks of $w$ recursively
+encode the products
 \[
  S=(A_0+A_1)(B_0+B_1),\qquad L=A_0B_0,\qquad H=A_1B_1.
 \]
-Consequently
+Consequently the backward step reconstructs
 \[
- AB=L+x^m(S-L-H)+x^{2m}H,
+ L+x^m(S-L-H)+x^{2m}H
+ =A_0B_0+x^m(A_0B_1+A_1B_0)+x^{2m}A_1B_1=AB.
 \]
-exactly the coefficient additions in the loop, including additions where
-the shifted ranges overlap. The base case is the scalar coefficient product.
+At $n=1$ this is just scalar multiplication, completing the induction.
+Ordinary inversion alone would discard the cross terms; the product mode
+uses the sum block to recover them. Equivalently, the forward transform
+samples each split at $0,1,\infty$, and products require quadratic rather
+than linear interpolation.
 
-The backward transform in product mode satisfies
-$B_2(N)=3B_2(N/2)+\Theta(N)$.
-The two forward transforms, $L(N)$ entrywise products, and backward
-reconstruction therefore take
+Each backward merge adds and shifts $O(n)$ coefficients, so
 \[
- \boxed{\Theta(N^{\log_2 3})=\Theta(n^{\log_2 3})=o(n^2)}.
+ B_2(n)=3B_2(n/2)+\Theta(n)=\Theta(n^{\log_2 3}).
 \]
-These bounds count scalar arithmetic operations.
+The two forward transforms and the $n^{\log_2 3}$ pointwise products have
+the same bound. The total time is therefore
+$\boxed{\Theta(n^{\log_2 3})=o(n^2)}$.
+
+\begin{thebibliography}{1}
+\bibitem{dominance}
+K. Labib, P. Uzna\'{n}ski, and D. Wolleb-Graf.
+\emph{Hamming Distance Completeness}. CPM 2019, pp.\ 14:1--14:17.
+Theorem 19: bucketing and convolution for less-than pattern matching.
+\url{https://doi.org/10.4230/LIPIcs.CPM.2019.14}.
+\end{thebibliography}
 
 \end{document}
 
