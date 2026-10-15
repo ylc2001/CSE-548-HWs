@@ -1,0 +1,428 @@
+\documentclass[11pt]{article}
+
+\usepackage{epsfig}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amstext}
+\usepackage{amsmath}
+\usepackage{xspace}
+\usepackage{theorem}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{url}
+
+
+% This is the stuff for normal spacing
+\makeatletter
+ \setlength{\textwidth}{6.5in}
+ \setlength{\oddsidemargin}{0in}
+ \setlength{\evensidemargin}{0in}
+ \setlength{\topmargin}{0.25in}
+ \setlength{\textheight}{8.25in}
+ \setlength{\headheight}{0pt}
+ \setlength{\headsep}{0pt}
+ \setlength{\marginparwidth}{59pt}
+
+ \setlength{\parindent}{0pt}
+ \setlength{\parskip}{5pt plus 1pt}
+ \setlength{\theorempreskipamount}{5pt plus 1pt}
+ \setlength{\theorempostskipamount}{0pt}
+ \setlength{\abovedisplayskip}{8pt plus 3pt minus 6pt}
+\makeatother
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Document begins here %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\headings}[3]{{\large
+{\bf CSE548: Analysis of Algorithms, Fall 2025} \hfill {{\bf Release Date:} #1}\\
+\rule[0.01in]{\textwidth}{0.025in}}
+\begin{center} {{\bf\huge{Homework \##2}}\\{\bf( Due Date: #3 )}} \end{center}
+}
+
+\begin{document}
+
+\headings{Sep 22}{1}{Oct 6}
+%\headings{{\underline{\hspace{1.5cm}\textcolor{white}{.}}}}{{\underline{\hspace{1cm}}}}{{\underline{\hspace{1.6cm}}}}
+\newcommand{\lecnum}{5}  % Lecture Number
+
+
+\vspace{2in}
+
+{\Large
+\begin{center}
+
+{\sc{Group Number:} {\underline{\hspace{1in}}}}~\\~\\
+
+\scalebox{0.83}{
+\begin{tabular}{||l|c|c||}\hline\hline
+ \multicolumn{3}{||c||}{Group Members}\\ \hline
+Name\hspace{3in}                              &      \hspace{0.5in}SBU ID\hspace{0.5in}     &     \% Contribution \\ \hline\hline
+                                  &                 &                     \\
+                                  &                 &                     \\ \hline
+                                  &                 &                     \\
+                                  &                 &                     \\ \hline
+                                  &                 &                     \\
+                                  &                 &                     \\ \hline\hline
+\end{tabular}
+}
+\end{center}
+}
+
+
+\newpage
+
+{\Large
+\begin{center}
+
+{\sc{\underline{Collaborating Groups}}}~\\
+\vspace{0.25cm}
+\scalebox{0.83}{
+\begin{tabular}{||c|c||}\hline\hline
+Group         &  Specifics \\
+Number        &  (e.g., specific group member? specific task/subtask?) \\ \hline\hline
+              &                                      \\ 
+              &                                      \\ 
+              &                                      \\ \hline
+              &                                      \\ 
+              &                                      \\ 
+              &                                      \\ \hline
+              &                                      \\ 
+              &                                      \\ 
+              &                                      \\ \hline
+              &                                      \\ 
+              &                                      \\ 
+              &                                      \\ \hline
+              &                                      \\ 
+              &                                      \\ 
+              &                                      \\ \hline\hline
+\end{tabular}
+}
+\end{center}
+}
+
+
+
+{\Large
+\begin{center}
+
+{\sc{\underline{External Resources Used}}}~\\
+\vspace{0.25cm}
+\scalebox{0.83}{
+\begin{tabular}{||c|c||}\hline\hline
+              &  Specifics \\
+              &   (e.g., cite papers, webpages, etc. and mention why each was used) \\ \hline\hline
+              &                                      \\ 
+    $1.$      &                                      \\ 
+              &                                      \\ \hline
+              &                                      \\ 
+    $2.$      &                                      \\ 
+              &                                      \\ \hline
+              &                                      \\ 
+    $3.$      &                                      \\ 
+              &                                      \\ \hline
+              &                                      \\ 
+    $4.$      &                                      \\ 
+              &                                      \\ \hline
+              &                                      \\ 
+    $5.$      &                                      \\ 
+              &                                      \\ \hline\hline
+\end{tabular}
+}
+\end{center}
+}
+
+
+
+\newpage
+
+\section*{Task 1. Minimizing the Distance Between Two Pegged Frames}
+
+Let $A_{ij}$ and $B_{ij}$ be the bottom and top peg heights, respectively,
+with indices $0\leq i,j<n$. Take the cell side length as the horizontal unit.
+For an integer translation $(s,t)$ of the top frame, define
+\[
+ D(s,t)=\max_{\substack{0\leq i,j<n\\0\leq i+s,j+t<n}}
+       \bigl(B_{ij}+A_{i+s,j+t}\bigr).
+\]
+This is the first-contact distance: overlapping pegs do not penetrate each
+other exactly when the distance between bases is at least their height sum.
+
+\textbf{Algorithm.} Enumerate every
+$(s,t)\in\{-(n-1),\ldots,n-1\}^2$. For each translation, scan all $n^2$
+top cells, take the maximum over valid overlapping pairs, and retain
+\[
+ D_* =\min_{s,t}D(s,t).
+\]
+Let $H$ be the maximum input peg height and
+$K=\lceil\log_\alpha(2H)\rceil$. Return
+\[
+ \boxed{\min\{\alpha^p+\alpha^q:
+                  0\leq p,q\leq K,\ \alpha^p+\alpha^q\geq D_*\}.}
+\]
+An attaining translation can also be retained during the scan.
+
+\textbf{Correctness.} For a noninteger horizontal displacement $x$, cell
+overlaps involve the two integer offsets $\lfloor x\rfloor$ and
+$\lceil x\rceil$; for an integer displacement, only that offset is needed.
+The same holds independently in the other direction. Since the frames
+overlap, one can choose a valid offset in each direction from
+$\{-(n-1),\ldots,n-1\}$. The cell pairs at this integer translation are a
+subset of those at the original translation. Ignoring the negligible cell
+boundaries, its first-contact distance is therefore no larger.
+Thus $D_*$ is the optimum over all allowed translations, including
+fractional ones. A distance $d$ is feasible for some translation if and
+only if $d\geq D_*$, which proves the final minimization.
+
+The candidate $1+\alpha^K$ is feasible because $D_*\leq2H\leq\alpha^K$.
+Any candidate with an exponent greater than $K$ exceeds this candidate,
+so the finite search includes an optimum.
+
+\textbf{Complexity.} There are $(2n-1)^2$ translations, and each scans
+$n^2$ cells: $\Theta(n^4)$ time. The final search costs $O(K^2)$, independent
+of $n$ under the given bounded-height assumption (for fixed $\alpha>1$).
+The algorithm uses $O(1)$ auxiliary space, excluding the input.
+
+\newpage
+\section*{Task 2. Multiplying $3\times3$ Matrices}
+
+\textbf{(a)} No: the displayed algorithm is correct for commuting scalars.
+For any row $i$, expansion and cancellation give
+\begin{align*}
+ p_{i4}+p_{i1}+p_{i2}-q_1-q_2
+    &=a_{i1}b_{11}+a_{i2}b_{21}+a_{i3}b_{31},\\
+ p_{i5}+p_{i1}+p_{i3}-q_1-q_3
+    &=a_{i1}b_{12}+a_{i2}b_{22}+a_{i3}b_{32},\\
+ p_{i6}+p_{i2}+p_{i3}-q_2-q_3
+    &=a_{i1}b_{13}+a_{i2}b_{23}+a_{i3}b_{33}.
+\end{align*}
+These are precisely the three entries in row $i$ of $AB$.
+The three $q$ products and six products per row total $21$ scalar products.
+
+\textbf{(b)} This algorithm cannot be used as a Strassen-style recursive
+block algorithm: square matrix blocks generally do not commute.
+For example, with $B=0$, expansion in a noncommutative ring yields
+\[
+ \widehat c_{i1}
+ =a_{i2}a_{i1}-a_{i1}a_{i2}
+  +a_{i3}a_{i1}-a_{i1}a_{i3},
+\]
+which need not be zero. Take $3\times3$ blocks $X=E_{11}$ and $Y=E_{12}$,
+where $E_{ij}$ has a single $1$ in position $(i,j)$, and set
+\[
+ A=\begin{pmatrix}X&Y&0\\0&0&0\\0&0&0\end{pmatrix},
+ \qquad B=0_{9\times9}.
+\]
+Here $XY=Y$ and $YX=0$. The proposed block formulas return
+$\widehat C_{11}=YX-XY=-Y\ne0$, although $AB=0$.
+Hence even the $n=9=3^2$ recursive construction fails.
+The formal recurrence $T(n)=21T(n/3)+\Theta(n^2)$ would give
+$\Theta(n^{\log_3 21})=o(n^{\log_2 7})$, but it describes an incorrect
+matrix multiplication algorithm; the scalar identities do not justify it.
+
+\newpage
+\section*{Task 3. Strassen's Algorithm Under Memory Constraints}
+
+\textbf{(a)} For the usual Strassen implementation that forms temporary
+matrix sums while preserving the inputs, the minimum asymptotic extra
+space is $\boxed{\Theta(n^2)}$, excluding the input and output matrices.
+Compute the seven products sequentially, using just three reusable
+$(n/2)\times(n/2)$ buffers: two operands $X,Y$ and their product $P$.
+Immediately add each $P$ to the appropriate output blocks, then reuse it.
+Only one child call is active at a time, so
+\[
+ S(n)=3(n/2)^2+S(n/2),\qquad S(1)=0.
+\]
+For $n=2^k$, the buffers occupy $n^2-1$ scalar slots in total; the recursion
+stack adds $O(\log n)$ words. Forming even one dense temporary block already
+requires $\Omega(n^2)$ extra space in this implementation. The exact constant
+depends on the buffer schedule.
+
+\textbf{(b)} Use an accumulating operation $\operatorname{Add}(A,B,C,s)$
+that performs $C\leftarrow C+AB$ for $s\times s$ matrices. Allocate the output
+once and initialize it to zero. A nonblocking allocation attempt either
+reserves all three local buffers or releases any partial reservation and
+returns failure. Matrix blocks below are views, so taking a block allocates
+no matrix storage. Assume $n$ is a power of two, or pad it to the next one.
+
+\begin{verbatim}
+ClassicalAdd(A, B, C, s):
+    for i = 0,...,s-1:
+        for j = 0,...,s-1:
+            for k = 0,...,s-1:
+                C[i,j] += A[i,k] * B[k,j]
+
+Add(A, B, C, s):
+    if s == 1: C[0,0] += A[0,0]*B[0,0]; return
+    if TryStrassenAdd(A, B, C, s): return
+    b = s/2
+    for I = 0,1:
+        for J = 0,1:
+            for K = 0,1:
+                (a,bmat,c) = (A[I,K], B[K,J], C[I,J])
+                if b > 1 and TryStrassenAdd(a,bmat,c,b):
+                    continue
+                ClassicalAdd(a,bmat,c,b)
+\end{verbatim}
+
+\begin{minipage}{\textwidth}
+\begin{verbatim}
+TryStrassenAdd(A, B, C, s):
+    W = try_allocate(3*(s/2)^2 scalar slots)
+    if W failed: return false
+    partition W into X, Y, P
+    for each row (L, R, destinations) of the table below:
+        X = L; Y = R; P = 0
+        Add(X, Y, P, s/2)
+        add or subtract P at the listed destinations
+    free W
+    return true
+
+Multiply(A, B, C, n):
+    C = 0
+    Add(A, B, C, n)
+\end{verbatim}
+\end{minipage}
+
+\begin{center}
+\begin{tabular}{c|c|c|l}
+Product & $L$ & $R$ & Output updates \\ \hline
+$M_1$ & $A_{11}+A_{22}$ & $B_{11}+B_{22}$ & $C_{11}{+}=P,\ C_{22}{+}=P$ \\
+$M_2$ & $A_{21}+A_{22}$ & $B_{11}$ & $C_{21}{+}=P,\ C_{22}{-}=P$ \\
+$M_3$ & $A_{11}$ & $B_{12}-B_{22}$ & $C_{12}{+}=P,\ C_{22}{+}=P$ \\
+$M_4$ & $A_{22}$ & $B_{21}-B_{11}$ & $C_{11}{+}=P,\ C_{21}{+}=P$ \\
+$M_5$ & $A_{11}+A_{12}$ & $B_{22}$ & $C_{11}{-}=P,\ C_{12}{+}=P$ \\
+$M_6$ & $A_{21}-A_{11}$ & $B_{11}+B_{12}$ & $C_{22}{+}=P$ \\
+$M_7$ & $A_{12}-A_{22}$ & $B_{21}+B_{22}$ & $C_{11}{+}=P$
+\end{tabular}
+\end{center}
+
+On allocation failure, the call switches to the standard iterative blocked
+product. Each of its eight block contributions is computed immediately;
+it never waits. Before the next block contribution, it can try Strassen
+again, allowing even an initially failing root call to exploit memory
+that becomes available later. A failed block attempt uses the scalar
+triple loop directly. Reserved memory remains valid until it is freed.
+
+\textbf{Correctness and bounds.} A successful attempt uses Strassen's
+identities; a failed attempt changes no entries. The fallback computes
+$C_{IJ}\leftarrow C_{IJ}+\sum_K A_{IK}B_{KJ}$, with each contribution added
+exactly once. Induction on $s$ proves correctness for every allocation
+pattern. Every path makes progress. With ample memory the time is
+$\Theta(n^{\log_2 7})$; with no temporary matrix memory it is
+$\Theta(n^3)$. Arbitrary allocation patterns take $O(n^3)$ time and use at
+most $O(n^2)$ extra matrix storage, plus the recursion stack.
+
+\newpage
+\section*{Task 4. A New Transform}
+
+Write $F_n(u)$ for the transform, and let $u=(a,b)$ be its two halves.
+Every call restores its input: by induction the first recursive call
+restores $b$, the second restores $a+b$, and the saved $a$ is copied back
+before the last recursive call, which restores it. Therefore the three
+output blocks, in their actual order, are
+\[
+ \boxed{F_n(a,b)=\bigl(F_{n/2}(a+b),\ F_{n/2}(a),\ F_{n/2}(b)\bigr).}
+\]
+This identity also establishes linearity of $F_n$.
+
+\textbf{(a)} For $n=2^k$, the loop computes
+$r=3^{k-1}$, the length of one output block. Thus
+\[
+ L(1)=1,\quad L(n)=3L(n/2),\quad
+ \boxed{n_v=L(n)=3^k=n^{\log_2 3}}.
+\]
+The three recursive calls, two length-$n/2$ loops, and the $O(\log n)$
+offset loop give
+\[
+ T(n)=3T(n/2)+\Theta(n),\qquad
+ \boxed{T(n)=\Theta(n^{\log_2 3})}.
+\]
+
+\textbf{(b)} The backward transform has a mode parameter $d$. For $d=1$
+it inverts a single forward transform and returns the original length-$n$
+vector. For use in part (c), we also define $d=2$: on input
+$F_n(a)\odot F_n(b)$, where $\odot$ denotes entrywise multiplication,
+it reconstructs the $2n-1$ coefficients of the product of the polynomials
+represented by $a$ and $b$. This is an extension of the backward operation
+to product data; the two modes have different reconstruction rules.
+Indices are zero-based, and the initial value of $\ell$ is $L(n)$.
+
+\begin{verbatim}
+BackwardTransform(v, iv, w, iw, n, ell, d = 1):
+    if n == 1: w[iw] = v[iv]; return
+    m = n/2; r = ell/3
+    if d == 1:
+        BackwardTransform(v, iv+r,   w, iw,   m, r, 1)
+        BackwardTransform(v, iv+2*r, w, iw+m, m, r, 1)
+        return
+    allocate S, L, H, each of length 2*m-1
+    BackwardTransform(v, iv,     S, 0, m, r, 2)
+    BackwardTransform(v, iv+r,   L, 0, m, r, 2)
+    BackwardTransform(v, iv+2*r, H, 0, m, r, 2)
+    w[iw : iw+2*n-2] = 0
+    for t = 0,...,2*m-2:
+        w[iw+t]     += L[t]
+        w[iw+m+t]   += S[t] - L[t] - H[t]
+        w[iw+2*m+t] += H[t]
+    free S, L, H
+\end{verbatim}
+
+For the inverse requested in this part, allocate a length-$n$ output
+array $u$ and call
+\[
+ \operatorname{BackwardTransform}(v,0,u,0,n,L(n),1).
+\]
+The second and third blocks are $F_{n/2}(a)$ and $F_{n/2}(b)$.
+Induction shows that their inverses write $a$ and $b$ into the two halves
+of $u$, recovering the original vector. The output is allocated only once,
+and no array copying is needed. Thus
+\[
+ B_1(n)=2B_1(n/2)+\Theta(1)=\boxed{\Theta(n)}.
+\]
+The stack uses $O(\log n)$ space, excluding the output.
+The product mode is justified in part (c); it reads all three blocks
+and takes $\Theta(n^{\log_2 3})$ time.
+
+\textbf{(c)} Pad both coefficient vectors to a common power-of-two length
+$N=\Theta(n)$ large enough for all input coefficients (use $N\geq n+1$
+if degree bound $n$ includes degree $n$). Apply the given forward transform:
+\[
+ f=F_N(a),\qquad g=F_N(b),\qquad h_j=f_jg_j
+ \quad(0\leq j<L(N)).
+\]
+Allocate a length-$(2N-1)$ output array $c$ and call the backward transform
+from (b) in product mode:
+\[
+ \boxed{\operatorname{BackwardTransform}(h,0,c,0,N,L(N),2).}
+\]
+The output contains the coefficients of $AB$; discard only trailing
+coefficients beyond its degree bound. This uses both transforms, with
+product mode supplying the reconstruction rule for entrywise products.
+
+For correctness, write $A=A_0+x^mA_1$ and $B=B_0+x^mB_1$, where $m=N/2$.
+The three blocks of $h$ are the entrywise products of the transforms of
+$(a_0+a_1,b_0+b_1)$, $(a_0,b_0)$, and $(a_1,b_1)$, respectively.
+By induction, the recursive backward calls reconstruct
+\[
+ S=(A_0+A_1)(B_0+B_1),\qquad L=A_0B_0,\qquad H=A_1B_1.
+\]
+Consequently
+\[
+ AB=L+x^m(S-L-H)+x^{2m}H,
+\]
+exactly the coefficient additions in the loop, including additions where
+the shifted ranges overlap. The base case is the scalar coefficient product.
+
+The backward transform in product mode satisfies
+$B_2(N)=3B_2(N/2)+\Theta(N)$.
+The two forward transforms, $L(N)$ entrywise products, and backward
+reconstruction therefore take
+\[
+ \boxed{\Theta(N^{\log_2 3})=\Theta(n^{\log_2 3})=o(n^2)}.
+\]
+These bounds count scalar arithmetic operations.
+
+\end{document}
+
