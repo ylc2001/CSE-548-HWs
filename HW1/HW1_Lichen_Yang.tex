@@ -146,17 +146,17 @@ unsolvable: for $n=1$, heights $1,6$, and $\alpha=2$, contact occurs at $7$,
 which is not a sum of two nonnegative powers of $2$.}
 
 \textbf{Reduce to integer shifts.}
-For a fractional displacement, overlapping pairs come from neighboring
-integer displacements. Rounding both coordinates toward zero retains a
-nonempty subset of those pairs, so cannot increase the required separation.
+Ignore zero-area boundary contacts and measure distances in cell widths.
+In each coordinate, the overlapping cell offsets for displacement $t$ are
+$\lfloor t\rfloor,\lceil t\rceil$, restricted to valid offsets.
+Since $|t|<n$, rounding toward zero selects a valid offset. Doing this in
+both coordinates keeps a nonempty subset of overlapping pairs, so cannot
+increase the required separation.
 Thus it suffices to use
 $s\in\{-(n-1),\ldots,n-1\}^2$, with
 \[
  H(s)=\max_{v-u=s}(A_u+B_v),\qquad h=\min_s H(s).
 \]
-All these shifts have nonempty overlap. We first compute $h$ exactly, without
-rounding individual heights.
-
 \textbf{A fast feasibility test (dominance matching \cite{dominance}).}
 For a threshold $d$, compute the number of violating pairs at every shift:
 \[
@@ -173,8 +173,9 @@ $Y_I(v)={\bf1}[a_I+B_v>d]$. Add their cross-correlation
 \[
  (X_I\star Y_I)(s)=\sum_{v-u=s}X_I(u)Y_I(v)
 \]
-to $C_d$, using FFT after reversing $X_I$ and padding both dimensions to at
-least $2n-1$. This counts whole blocks of violations for each bottom cell.
+to $C_d$, initially zero, using FFT with $X_I$ reversed in both coordinates
+and both dimensions padded to at least $2n-1$. Shift $s$ uses convolution
+entry $(n-1+s_1,n-1+s_2)$; extra padding entries are not legal shifts.
 \item For each bottom cell $v$, binary-search the sorted top heights for the
 first height greater than $d-B_v$. If it lies strictly inside a block,
 explicitly add the violating pairs in that block to their shifts $v-u$.
@@ -242,10 +243,16 @@ For fixed $\alpha>1$, the total running time is
  \boxed{O(n^3\log^{3/2}n)=o(n^4).}
 \]
 If $\alpha$ varies with the input, retain the additive
-$O(1+\log_\alpha2)$ term. These are arithmetic-operation bounds, with
+$O(1+\log_\alpha2)$ term; the subquartic claim is for fixed $\alpha$, not
+uniform over input-dependent $\alpha$ approaching $1$.
+These are arithmetic-operation bounds, with
 power/logarithm evaluation counted at unit cost; exact power comparisons
-resolve logarithm endpoints. Binary convolutions compute integer counts
-exactly (using sufficient FFT precision). For $n=1$, simply take
+resolve logarithm endpoints: $\lceil\log_\alpha x\rceil$ means the smallest
+integer $k$ with $\alpha^k\ge x$, not an unchecked floating-point ceiling.
+Binary convolutions compute integer counts exactly (using sufficient FFT
+precision to round each coefficient with error less than $1/2$).
+If a placement is desired, rerun the feasibility test at $h$ and return any
+zero-count shift, which is also feasible at $D$. For $n=1$, simply take
 $h=A_{00}+B_{00}$ and apply the same rounding step.
 
 \newpage
@@ -306,11 +313,10 @@ $\Omega(n^2)$ space. This bound concerns the temporary-matrix model in the
 question, rather than algorithms that overwrite inputs or recompute entries.
 
 \newpage
-\textbf{(b)} Initialize $C=0$ and call the accumulating procedure below.
-At every recursive call, try to reserve three half-size buffers. If this
-fails, perform the ordinary eight recursive block products directly into
-views of $C$. Each child tries again, so later memory becomes useful even
-after an ancestor's allocation failed.
+\textbf{(b)} Initialize $C=0$, disjoint from both inputs. Each call tries to
+reserve three half-size buffers without blocking; failure releases any
+partial allocation. On failure, use eight ordinary block products into
+views of $C$. Each child retries allocation, exploiting later memory.
 
 \begin{verbatim}
 Accumulate(A, B, C):                 // C <- C + A B
@@ -345,17 +351,21 @@ Accumulate(A, B, C):                 // C <- C + A B
 \end{array}
 \]
 
-Both branches preserve $C\leftarrow C+AB$: one uses Strassen's identities,
-the other uses $(AB)_{ij}=\sum_k A_{ik}B_{kj}$. Induction proves correctness
-regardless of the allocation outcomes. Calls never wait, and both branches
-reduce the matrix size, so the algorithm always finishes. As usual, allocated
-buffers remain valid until freed, and input/output storage and the recursion
-stack are available. Block views require no matrix copies.
+Both branches preserve $C\leftarrow C+AB$ by Strassen's identities or
+$(AB)_{ij}=\sum_k A_{ik}B_{kj}$; induction proves correctness for any
+allocation outcomes. Calls never wait and halve the size, so they terminate.
+Allocated buffers remain valid until freed; input/output and stack storage
+are assumed available. Block views make no copies.
 
 If all allocations succeed, time is $\Theta(n^{\log_2 7})$; if all fail, it
 is $\Theta(n^3)$ with only $O(\log n)$ stack space beyond the inputs and
-output. Any mixture takes $O(n^3)$ time and at most $O(n^2)$ temporary space.
-Zero-padding to the next power of two handles other sizes.
+output. Any mixture takes $O(n^3)$ time and at most $O(n^2)$ temporary space,
+assuming each allocation attempt takes $O(n^2)$ time or less.
+For other sizes, use a logical size $M=2^{\lceil\log_2 n\rceil}<2n$ and
+\emph{virtual} zero padding: input views return zero outside the original
+arrays, and output views ignore writes outside the original $C$. Buffer
+views, when allocated, retain all their entries. Thus padding itself never
+requires an extra matrix allocation, and the same bounds hold with $M=O(n)$.
 
 \newpage
 \section*{Task 4. A new transform}
@@ -379,33 +389,37 @@ $r=3^{\log_2m}$, the value computed by the loop. Thus
 The $O(\log n)$ loop overhead is absorbed by the linear copying work.
 
 \textbf{(b)} The last two blocks already encode the two original halves,
-so an inverse need not read the redundant first block. The following
-backward transform has a default mode $d=1$ for inversion and a mode $d=2$
-for products, used in part (c). It returns coefficient arrays, viewed as
-polynomials; multiplying by $x^m$ means shifting an array by $m$ positions.
+so an inverse need not read the redundant first block. To make the linear
+running time explicit, use offsets into the input and a single output array;
+no recursive call copies a transformed block. The wrapper also supports a
+product mode $d=2$, defined in part (c).
 
 \begin{verbatim}
 BackwardTransform(v, n, d = 1):
-    if n = 1: return [v[0]]
-    m <- n/2; r <- 3^(log_2 m)
-    split v into consecutive blocks (vS, vL, vH) of length r
-    L <- BackwardTransform(vL, m, d)
-    H <- BackwardTransform(vH, m, d)
-    if d = 1:
-        return L + x^m H
-    S <- BackwardTransform(vS, m, 2)
-    return L + x^m (S - L - H) + x^(2m) H
+    ell <- 3^(log_2 n)              // compute once using integer powers
+    if d = 2: return Product(v, 0, n, ell)
+    allocate u[0 .. n-1]
+    Recover(v, 0, u, 0, n, ell)
+    return u
+
+Recover(v, iv, u, iu, n, ell):
+    if n = 1:
+        u[iu] <- v[iv]; return
+    m <- n/2; r <- ell/3
+    Recover(v, iv+r,   u, iu,   m, r)
+    Recover(v, iv+2*r, u, iu+m, m, r)
 \end{verbatim}
 
-For ordinary inversion, induction gives $L=u_0$ and $H=u_1$; the returned
-array is exactly their concatenation. With indexed output slices, the two
-recursive calls write directly into the two halves of $u$, giving
+For ordinary inversion, induction shows that the two calls recover $u_0$
+and $u_1$ directly into the two halves of $u$, giving
 \[
  B_1(n)=2B_1(n/2)+O(1)=\boxed{\Theta(n)}.
 \]
 This is optimal for writing $n$ coefficients. The transformed vector is
 assumed valid; checking all its redundant entries is unnecessary. Literal
-array-copying concatenation would instead take $\Theta(n\log n)$.
+array-copying concatenation would instead take $\Theta(n\log n)$, and
+copying transformed input blocks would cost $\Theta(n^{\log_2 3})$.
+The output uses $\Theta(n)$ space and the recursion stack $O(\log n)$.
 
 \textbf{(c)} Pad the coefficient arrays to a common power-of-two length $n$
 (or $O(n)$ if padding is needed). Compute
@@ -417,6 +431,26 @@ array-copying concatenation would instead take $\Theta(n\log n)$.
 Return $\operatorname{BackwardTransform}(w,n,2)$, of length $2n-1$.
 
 \newpage
+The product decoder uses all three blocks. It returns an array of exactly
+$2n-1$ coefficients; all input blocks are accessed by offsets.
+\begin{verbatim}
+Product(w, iw, n, ell):
+    if n = 1: return [w[iw]]
+    m <- n/2; r <- ell/3
+    S <- Product(w, iw,     m, r)
+    L <- Product(w, iw+r,   m, r)
+    H <- Product(w, iw+2*r, m, r)
+    allocate R[0 .. 2*n-2], initially zero
+    for t <- 0 to 2*m-2:
+        R[t]     <- R[t]     + L[t]
+        R[m+t]   <- R[m+t]   + S[t] - L[t] - H[t]
+        R[2*m+t] <- R[2*m+t] + H[t]
+    return R
+\end{verbatim}
+The updates are additions: the shifted coefficient ranges can overlap.
+For example, $A=B=1+x$ gives $w=(4,1,1)$ and product coefficients
+$(1,2,1)$; the ordinary inverse alone would return $(1,1)$.
+
 To see why the product mode works, write
 $A=A_0+x^mA_1$ and $B=B_0+x^mB_1$. The three blocks of $w$ recursively
 encode the products
