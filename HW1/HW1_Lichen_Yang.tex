@@ -274,7 +274,11 @@ when multiplication is noncommutative.
 
 \section*{Task 3. Strassen under memory constraints}
 
-\textbf{(a)} For the usual implementation that materializes temporary
+\textbf{(a)} 
+In the following discussion, we assume that $n$ is a power of two, so that 
+the recursion can be applied without any padding. 
+
+For the usual implementation that materializes temporary
 matrices, the minimum asymptotic extra space is $\boxed{\Theta(n^2)}$,
 excluding the input and output matrices. A constant number of
 $(n/2)\times(n/2)$ buffers suffices: compute the seven products sequentially
