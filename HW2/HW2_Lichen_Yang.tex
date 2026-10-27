@@ -43,7 +43,7 @@
 
 \begin{document}
 
-\headings{Oct 2}{1}{Oct 16}
+\headings{Oct 25}{2}{Nov 6}
 %\headings{{\underline{\hspace{1.5cm}\textcolor{white}{.}}}}{{\underline{\hspace{1cm}}}}{{\underline{\hspace{1.6cm}}}}
 \newcommand{\lecnum}{5}  % Lecture Number
 
@@ -136,7 +136,215 @@ Number        &  (e.g., specific group member? specific task/subtask?) \\ \hline
 
 
 \newpage
-\section*{Task 1. }
+\section*{Task 1. A Deterministic Sorting Algorithm}
+
+\textbf{(a)} Under the standard partition cost of $n-1$ comparisons,
+the stated recurrence has an error. Let $s_n$ be the
+cost on an already sorted input. Stability leaves both parts sorted, so
+\[
+s_0=s_1=0,\qquad s_n=2s_{n-1}+n-1=2^n-n-1\quad(n\geq 1).
+\]
+The first pivot has each rank with probability $1/n$. Conditional on its
+rank, stability preserves uniformly random orders within the two parts.
+The first recursive pass sorts them; the second therefore costs
+$s_k+s_{n-1-k}$. Hence, for $n\geq2$,
+\begin{align*}
+t_n&=n-1+\frac1n\sum_{k=0}^{n-1}
+       (t_k+t_{n-1-k}+s_k+s_{n-1-k})\\
+&=n-1+\frac2n\sum_{k=0}^{n-1}t_k
+ +\frac2n\left(2^n-1-\frac{n(n+1)}2\right)\\
+&=-2+\frac2n\left(2^n-1+\sum_{k=0}^{n-1}t_k\right),
+\end{align*}
+with $t_0=t_1=0$.
+The requested right-hand side exceeds this by $2(n-1)$: already at
+$n=2$, the algorithm uses one comparison, whereas the stated recurrence
+gives three. Thus it cannot be proved under this comparison model.
+Parts (b)--(d) below use the \emph{stated recurrence}, as requested.
+
+\textbf{(b)} Multiply the recurrence by $nz^{n-1}$ and sum over $n\geq2$.
+Since $t_0=t_1=0$,
+\[
+\sum_{n\geq2}z^{n-1}\sum_{k=0}^{n-1}t_k=\frac{T(z)}{1-z}.
+\]
+Consequently,
+\begin{align*}
+T'(z)&=\frac{2T(z)}{1-z}
+ +2\left(\frac{1+z}{(1-z)^3}-\frac2{(1-z)^2}+1\right)
+ +2\left(\frac4{1-2z}-\frac1{1-z}-1\right)\\
+&=\frac{2}{1-z}T(z)+\frac{2z(3-5z)}{(1-2z)(1-z)^3}.
+\end{align*}
+
+\textbf{(c)} The integrating factor is $(1-z)^2$. Thus
+\[
+\bigl((1-z)^2T(z)\bigr)'
+=\frac{2z(3-5z)}{(1-2z)(1-z)}
+=\frac4{1-z}+\frac1{1-2z}-5.
+\]
+Integrating and using $T(0)=0$ gives
+\[
+\boxed{T(z)=-\frac{8\ln(1-z)+\ln(1-2z)+10z}{2(1-z)^2}.}
+\]
+
+\textbf{(d)} Write $H_n=\sum_{k=1}^n1/k$. Extracting coefficients in (c),
+\begin{align*}
+t_n
+&=4\bigl((n+1)H_n-n\bigr)
+ +\frac12\sum_{k=1}^n\frac{(n-k+1)2^k}{k}-5n\\
+&=4(n+1)H_n-9n+1
+ +\underbrace{\left(\frac{n+1}{2}\sum_{k=1}^n\frac{2^k}{k}
+ -2^{n+1}\right)}_{E_n}.
+\end{align*}
+To expand the exponential term, set $j=n-k$:
+\[
+\sum_{k=1}^n\frac{2^k}{k}
+=\frac{2^n}{n}\sum_{j=0}^{n-1}\frac{2^{-j}}{1-j/n}
+=\frac{2^{n+1}}n\left(1+\frac1n+\frac3{n^2}
+ +\frac{13}{n^3}+\frac{75}{n^4}+O(n^{-5})\right).
+\]
+Indeed, the moments $\sum_{j\geq0}j^r2^{-j}$ for $r=0,1,2,3,4$ are
+$2,2,6,26,150$, obtained by repeatedly applying $x\,d/dx$ to $(1-x)^{-1}$
+at $x=1/2$. Expand $(1-j/n)^{-1}$ through degree four for $j\leq n/2$;
+the remainder sums to $O(n^{-5})$, and the remaining tail is exponentially
+small. Substitution yields
+\[
+E_n=\frac{2^{n+1}}n\left(1+\frac2n+\frac8{n^2}
+ +\frac{44}{n^3}+O(n^{-4})\right).
+\]
+Finally, $H_n=\ln n+\gamma+O(1/n)$. Its resulting $O(1)$ contribution
+is absorbed by the displayed $O(2^n/n^5)$ remainder, giving
+\[
+\boxed{t_n=\frac{2^{n+1}}n\left(1+\frac2n+\frac8{n^2}
+ +\frac{44}{n^3}+O(n^{-4})\right)
+ +4(n+1)(\ln n+\gamma)-9n+1.}
+\]
+
+\newpage
+\section*{Task 2. Mutual Recursion}
+
+\textbf{(a)} Let $p_n,q_n$ denote the returned values. Both sequences are
+nondecreasing, and, for $n\geq3$, each value is at least twice the smaller
+value at index $n-3$. Also $p_n,q_n\leq2^n$ by induction. Therefore
+\[
+2^{\lfloor n/3\rfloor}\leq p_n,q_n\leq2^n,
+\]
+so both have $\Theta(n)$ bits. Adding the returned integers costs
+$\Theta(n)$ bit operations; index arithmetic costs $O(\log n)$.
+This justifies the simplified local costs $c_pn,c_qn$.
+
+\textbf{(b)} Set $P(z)=\sum_{n\geq0}T_p(n)z^n$,
+$Q(z)=\sum_{n\geq0}T_q(n)z^n$, and
+\[
+R(z)=\sum_{n\geq3}nz^n=\frac{z^3(3-2z)}{(1-z)^2}.
+\]
+Summing the recurrences, including the three initial values $1,1,1$, gives
+\[
+(1-z)P-z^3Q=1+R,\qquad
+-zP+(1-z)Q=1-z-z^2+R.
+\]
+The determinant is $(1-z)^2-z^4=(1-z-z^2)(1-z+z^2)$.
+Solving and decomposing, with $D=1-z-z^2$ and $E=1-z+z^2$, yields
+\begin{align*}
+P(z)&=2+3z+\frac{5+z}{2D}-\frac{3+z}{2E}
+      -\frac{z}{(1-z)^2}-\frac2{1-z},\\
+Q(z)&=\frac{6+5z}{2D}+\frac{4-3z}{2E}
+      -\frac{z}{(1-z)^2}-\frac4{1-z}.
+\end{align*}
+Use the coefficient identities
+\[
+\sum_{n\geq0}L_nz^n=\frac{2-z}{D},\quad
+\sum_{n\geq0}F_nz^n=\frac zD,\quad
+\sum_{n\geq0}\cos(n\pi/3)z^n=\frac{1-z/2}{E},\quad
+\sum_{n\geq0}\sin(n\pi/3)z^n=\frac{\sqrt3\,z}{2E}.
+\]
+For $n\geq2$, coefficient extraction gives
+\begin{align*}
+T_p(n)&=\frac54L_n+\frac74F_n
+ -\frac5{2\sqrt3}\sin\frac{n\pi}3-\frac32\cos\frac{n\pi}3-n-2,\\
+T_q(n)&=\frac32L_n+4F_n
+ -\frac1{\sqrt3}\sin\frac{n\pi}3+2\cos\frac{n\pi}3-n-4.
+\end{align*}
+The $T_q$ formula also holds at $n=1$. The stated $T_p$ formula has a
+boundary error: it gives $-2$ at $n=1$, whereas $T_p(1)=1$; the $3z$
+term supplies the missing $3$.
+
+\textbf{(c)} Memoize each pair (function name, input) while keeping the
+original recursive calls. There are $\Theta(n)$ computed states, and the
+addition at index $k$ costs $\Theta(k)$ bits of work. Thus the time and
+cached-value space are both $\sum_{k=1}^n\Theta(k)=\Theta(n^2)$;
+the recursion stack fits within this space bound.
+
+For $\Theta(n)$ extra bits, evaluate the same recurrences bottom-up.
+Initialize $p_0=p_1=p_2=q_0=q_1=q_2=1$ and, for $k=3,\ldots,n$, compute
+\[
+p_k=p_{k-1}+q_{k-3},\qquad q_k=p_{k-1}+q_{k-1}.
+\]
+Keep only the previous $p$ and the last three $q$'s, computing both new
+values before overwriting them. This uses $\Theta(n)$ bits and still
+takes $\Theta(n^2)$ time. For $n<3$, simply return $(1,1)$.
+
+\newpage
+\section*{Task 3. Akra--Bazzi Recurrences}
+
+Assume positive, bounded base-case costs. For real $x$,
+$0\leq x-2\lfloor x/2\rfloor<2$, so $f(x)\in\{0,1\}$.
+We bound each recurrence by recurrences with smooth nonnegative tolls;
+comparison follows by induction. This avoids applying Akra--Bazzi
+directly to the discontinuous function $f$.
+
+For a comparison recurrence $U(n)=\sum_i a_iU(b_in)+g(n)$,
+Akra--Bazzi gives
+\[
+U(n)=\Theta\!\left(n^p\left(1+\int_1^n
+\frac{g(u)}{u^{p+1}}\,du\right)\right),
+\qquad \sum_i a_ib_i^p=1.
+\]
+We apply this formula in dependency order.
+
+\textbf{$T_A$.} The characteristic equation
+$\frac43 2^{-p}+3^{-p}=1$ has root $p=1$.
+The toll lies between $n$ and $n+4n^3$; hence
+\[
+T_A(n)=\Omega(n\log n),\qquad T_A(n)=O(n^3).
+\]
+The corresponding integrals have orders $\log n$ and $n^2$.
+
+\textbf{$T_B$.} Let $\beta$ solve $3\,2^{-\beta}+\frac94\,4^{-\beta}=1$.
+Then
+\[
+\beta=\log_2\!\left(\frac{3(1+\sqrt2)}2\right),\qquad
+\frac32<\beta<2.
+\]
+The toll lies between $n^{3/2}$ and $n^{3/2}+3n^3$.
+The lower integral is bounded, and the upper is $\Theta(n^{3-\beta})$, so
+\[
+T_B(n)=\Omega(n^\beta),\qquad T_B(n)=O(n^3).
+\]
+
+\textbf{$T_C$.} Here $2\,2^{-p}=1$, so $p=1$.
+Using the bounds on $T_A$, the toll is
+$\Omega(n\log n)$ and $O(n^3)$.
+The comparison integrals are $\Theta(\log^2 n)$ and $\Theta(n^2)$, giving
+\[
+T_C(n)=\Omega(n\log^2 n),\qquad T_C(n)=O(n^3).
+\]
+
+\textbf{$T_D$.} Now $4\,3^{-p}=1$, so $p=\delta=\log_3 4<4/3$.
+Since $T_B(2\sqrt n/5)=O(n^{3/2})$, the toll is bounded below by
+$n^{4/3}$ and above by $O(n^{3/2})$.
+The integrals have orders $n^{4/3-\delta}$ and $n^{3/2-\delta}$, so
+\[
+T_D(n)=\Omega(n^{4/3}),\qquad T_D(n)=O(n^{3/2}).
+\]
+
+\textbf{$T_E$.} Its characteristic equation is
+$\frac53 4^{-p}+\frac74 3^{-p}=1$, whose root is $p=1$.
+The term $3T_D(n/4)$ gives a lower toll $\Omega(n^{4/3})$;
+both $T_C(\sqrt n/2)$ and $T_D(n/4)$ are $O(n^{3/2})$.
+Thus the lower and upper integrals have orders $n^{1/3}$ and $n^{1/2}$,
+respectively. Therefore the requested bounds are
+\[
+\boxed{T_E(n)=\Omega(n^{4/3}),\qquad T_E(n)=O(n^{3/2}).}
+\]
 
 
 \end{document}
