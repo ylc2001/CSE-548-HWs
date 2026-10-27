@@ -161,16 +161,43 @@ $n=2$, the algorithm uses one comparison, whereas the stated recurrence
 gives three. Thus it cannot be proved under this comparison model.
 Parts (b)--(d) below use the \emph{stated recurrence}, as requested.
 
-\textbf{(b)} Multiply the recurrence by $nz^{n-1}$ and sum over $n\geq2$.
-Since $t_0=t_1=0$,
+\textbf{(b)} Multiplying the stated recurrence by $n$ gives
 \[
-\sum_{n\geq2}z^{n-1}\sum_{k=0}^{n-1}t_k=\frac{T(z)}{1-z}.
+nt_n=2n(n-2)+2(2^n-1)+2\sum_{k=0}^{n-1}t_k
+\qquad(n\geq2).
 \]
-Consequently,
+Multiply by $z^{n-1}$ and sum over $n\geq2$. Since $t_0=t_1=0$,
+the left-hand side is $T'(z)$. For the prefix-sum term, interchange
+the sums to obtain
+\[
+\sum_{n\geq2}z^{n-1}\sum_{k=0}^{n-1}t_k
+=\sum_{k\geq2}t_k\sum_{n\geq k+1}z^{n-1}
+=\sum_{k\geq2}\frac{t_kz^k}{1-z}
+=\frac{T(z)}{1-z}.
+\]
+Differentiating the geometric series gives
+\[
+\sum_{n\geq1}nz^{n-1}=\frac1{(1-z)^2},\qquad
+\sum_{n\geq1}n^2z^{n-1}=\frac{1+z}{(1-z)^3}.
+\]
+Removing the $n=1$ terms, we get
+\begin{align*}
+\sum_{n\geq2}n(n-2)z^{n-1}
+&=\left(\frac{1+z}{(1-z)^3}-1\right)
+ -2\left(\frac1{(1-z)^2}-1\right)\\
+&=\frac{1+z}{(1-z)^3}-\frac2{(1-z)^2}+1,\\
+\sum_{n\geq2}(2^n-1)z^{n-1}
+&=\frac{4z}{1-2z}-\frac{z}{1-z}
+=\frac2{1-2z}-\frac1{1-z}-1.
+\end{align*}
+Substituting these identities and combining fractions yields
 \begin{align*}
 T'(z)&=\frac{2T(z)}{1-z}
  +2\left(\frac{1+z}{(1-z)^3}-\frac2{(1-z)^2}+1\right)
- +2\left(\frac4{1-2z}-\frac1{1-z}-1\right)\\
+ +2\left(\frac2{1-2z}-\frac1{1-z}-1\right)\\
+&=\frac{2T(z)}{1-z}
+ +\frac{2\bigl((-2+5z-z^2)(1-2z)+2(1-z)^3\bigr)}
+ {(1-2z)(1-z)^3}\\
 &=\frac{2}{1-z}T(z)+\frac{2z(3-5z)}{(1-2z)(1-z)^3}.
 \end{align*}
 
