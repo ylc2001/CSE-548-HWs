@@ -113,11 +113,11 @@ Number        &  (e.g., specific group member? specific task/subtask?) \\ \hline
 \begin{tabular}{||c|c||}\hline\hline
               &  Specifics \\
               &   (e.g., cite papers, webpages, etc. and mention why each was used) \\ \hline\hline
-              &                                      \\ 
+              & OpenAI Codex: writing, polishing, and verification. \\  
     $1.$      &                                      \\ 
               &                                      \\ \hline
               &                                      \\ 
-    $2.$      & OpenAI Codex: writing, polishing, and verification. \\ 
+    $2.$      &                                      \\ 
               &                                      \\ \hline
               &                                      \\ 
     $3.$      &                                      \\ 
@@ -237,12 +237,22 @@ $Q(z)=\sum_{n\geq0}T_q(n)z^n$, and
 R(z)=\sum_{n\geq3}nz^n=\frac{z^3(3-2z)}{(1-z)^2}.
 \]
 Summing the recurrences, including the three initial values $1,1,1$, gives
+\begin{align*}
+P-1-z-z^2&=z(P-1-z)+z^3Q+R,\\
+Q-1-z-z^2&=z(P-1-z)+z(Q-1-z)+R.
+\end{align*}
+Rearranging,
 \[
 (1-z)P-z^3Q=1+R,\qquad
 -zP+(1-z)Q=1-z-z^2+R.
 \]
 The determinant is $(1-z)^2-z^4=(1-z-z^2)(1-z+z^2)$.
-Solving and decomposing, with $D=1-z-z^2$ and $E=1-z+z^2$, yields
+With $D=1-z-z^2$ and $E=1-z+z^2$, solving gives
+\[
+P=\frac{(1-z)(1+R)+z^3(D+R)}{DE},\qquad
+Q=\frac{z(1+R)+(1-z)(D+R)}{DE}.
+\]
+Substituting $R$ and decomposing into partial fractions yields
 \begin{align*}
 P(z)&=2+3z+\frac{5+z}{2D}-\frac{3+z}{2E}
       -\frac{z}{(1-z)^2}-\frac2{1-z},\\
