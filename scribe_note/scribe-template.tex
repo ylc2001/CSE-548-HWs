@@ -1,0 +1,331 @@
+\documentclass[11pt]{article}
+
+\usepackage{epsfig}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amstext}
+\usepackage{amsmath}
+\usepackage{xspace}
+\usepackage{theorem}
+\usepackage{times}
+\usepackage{graphicx}
+
+%\usepackage{layout}% if you want to see the layout parameters
+                     % and now use \layout command in the body
+
+% This is the stuff for normal spacing
+\makeatletter
+ \setlength{\textwidth}{6.5in}
+ \setlength{\oddsidemargin}{0in}
+ \setlength{\evensidemargin}{0in}
+ \setlength{\topmargin}{0.25in}
+ \setlength{\textheight}{8.25in}
+ \setlength{\headheight}{0pt}
+ \setlength{\headsep}{0pt}
+ \setlength{\marginparwidth}{59pt}
+
+ \setlength{\parindent}{0pt}
+ \setlength{\parskip}{5pt plus 1pt}
+ \setlength{\theorempreskipamount}{5pt plus 1pt}
+ \setlength{\theorempostskipamount}{0pt}
+ \setlength{\abovedisplayskip}{8pt plus 3pt minus 6pt}
+
+ \renewcommand{\section}{\@startsection{section}{1}{0mm}%
+                                   {2ex plus -1ex minus -.2ex}%
+                                   {1.3ex plus .2ex}%
+                                   {\normalfont\Large\bfseries}}%
+ \renewcommand{\subsection}{\@startsection{subsection}{2}{0mm}%
+                                     {1ex plus -1ex minus -.2ex}%
+                                     {1ex plus .2ex}%
+                                     {\normalfont\large\bfseries}}%
+ \renewcommand{\subsubsection}{\@startsection{subsubsection}{3}{0mm}%
+                                     {1ex plus -1ex minus -.2ex}%
+                                     {1ex plus .2ex}%
+                                     {\normalfont\normalsize\bfseries}}
+ \renewcommand{\paragraph}{\@startsection{paragraph}{4}{0mm}%
+                                    {1ex \@plus1ex \@minus.2ex}%
+                                    {-1em}%
+                                    {\normalfont\normalsize\bfseries}}
+ \renewcommand{\subparagraph}{\@startsection{subparagraph}{5}{\parindent}%
+                                       {2.0ex \@plus1ex \@minus .2ex}%
+                                       {-1em}%
+                                      {\normalfont\normalsize\bfseries}}
+\makeatother
+
+\newenvironment{proof}{{\bf Proof:  }}{\hfill\rule{2mm}{2mm}}
+\newenvironment{proofof}[1]{{\bf Proof of #1:  }}{\hfill\rule{2mm}{2mm}}
+\newenvironment{proofofnobox}[1]{{\bf#1:  }}{}
+\newenvironment{example}{{\bf Example:  }}{\hfill\rule{2mm}{2mm}}
+\renewcommand{\thesection}{\lecnum.\arabic{section}}
+
+\renewcommand{\theequation}{\thesection.\arabic{equation}}
+\renewcommand{\thefigure}{\thesection.\arabic{figure}}
+
+\newtheorem{fact}{Fact}[section]
+\newtheorem{lemma}[fact]{Lemma}
+\newtheorem{theorem}[fact]{Theorem}
+\newtheorem{definition}[fact]{Definition}
+\newtheorem{corollary}[fact]{Corollary}
+\newtheorem{proposition}[fact]{Proposition}
+\newtheorem{claim}[fact]{Claim}
+\newtheorem{exercise}[fact]{Exercise}
+
+% math notations
+\newcommand{\R}{\ensuremath{\mathbb R}}
+\newcommand{\Z}{\ensuremath{\mathbb Z}}
+\newcommand{\N}{\ensuremath{\mathbb N}}
+\newcommand{\F}{\ensuremath{\mathcal F}}
+\newcommand{\SymGrp}{\ensuremath{\mathfrak S}}
+
+\newcommand{\size}[1]{\ensuremath{\left|#1\right|}}
+\newcommand{\ceil}[1]{\ensuremath{\left\lceil#1\right\rceil}}
+\newcommand{\floor}[1]{\ensuremath{\left\lfloor#1\right\rfloor}}
+\newcommand{\poly}{\operatorname{poly}}
+\newcommand{\polylog}{\operatorname{polylog}}
+
+% asymptotic notations
+\newcommand{\Oh}[1]{{\mathcal O}\left({#1}\right)}
+\newcommand{\LOh}[1]{{\mathcal O}\left({#1}\right.}
+\newcommand{\ROh}[1]{{\mathcal O}\left.{#1}\right)}
+\newcommand{\oh}[1]{{o}\left({#1}\right)}
+\newcommand{\Om}[1]{{\Omega}\left({#1}\right)}
+\newcommand{\om}[1]{{\omega}\left({#1}\right)}
+\newcommand{\Th}[1]{{\Theta}\left({#1}\right)}
+
+
+% pseudocode notations
+\newcommand{\xif}{{\bf{\em{if~}}}}
+\newcommand{\xthen}{{\bf{\em{then~}}}}
+\newcommand{\xelse}{{\bf{\em{else~}}}}
+\newcommand{\xelseif}{{\bf{\em{elif~}}}}
+\newcommand{\xfi}{{\bf{\em{fi~}}}}
+\newcommand{\xcase}{{\bf{\em{case~}}}}
+\newcommand{\xendcase}{{\bf{\em{endcase~}}}}
+\newcommand{\xfor}{{\bf{\em{for~}}}}
+\newcommand{\xto}{{\bf{\em{to~}}}}
+\newcommand{\xby}{{\bf{\em{by~}}}}
+\newcommand{\xdownto}{{\bf{\em{downto~}}}}
+\newcommand{\xdo}{{\bf{\em{do~}}}}
+\newcommand{\xrof}{{\bf{\em{rof~}}}}
+\newcommand{\xwhile}{{\bf{\em{while~}}}}
+\newcommand{\xendwhile}{{\bf{\em{endwhile~}}}}
+\newcommand{\xand}{{\bf{\em{and~}}}}
+\newcommand{\xor}{{\bf{\em{or~}}}}
+\newcommand{\xerror}{{\bf{\em{error~}}}}
+\newcommand{\xreturn}{{\bf{\em{return~}}}}
+\newcommand{\xparallel}{{\bf{\em{parallel~}}}}
+\newcommand{\T}{\hspace{0.5cm}}
+\newcommand{\m}{\mathcal}
+
+\def\sland{~\land~}
+\def\slor{~\lor~}
+\def\sRightarrow{~\Rightarrow~}
+
+\def\comment#1{\hfill{$\left\{\textrm{{\em{#1}}}\right\}$}}
+\def\lcomment#1{\hfill{$\left\{\textrm{{\em{#1}}}\right.$}}
+\def\rcomment#1{\hfill{$\left.\textrm{{\em{#1}}}\right\}$}}
+\def\fcomment#1{\hfill{$\textrm{{\em{#1}}}$}}
+\def\func#1{\textrm{\bf{\sc{#1}}}}
+\def\funcbf#1{\textrm{\textbf{\textsc{#1}}}}
+
+\newcommand{\hide}[1]{}
+
+\newcommand{\prob}[1]{\ensuremath{\text{{\bf Pr}$\left[#1\right]$}}}
+\newcommand{\expct}[1]{\ensuremath{\text{{\bf E}$\left[#1\right]$}}}
+\newcommand{\Event}{{\mathcal E}}
+
+\newcommand{\mnote}[1]{\normalmarginpar \marginpar{\tiny #1}}
+
+\makeatletter
+   \newcommand\figcaption{\def\@captype{figure}\caption}
+   \newcommand\tabcaption{\def\@captype{table}\caption}
+\makeatother
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Document begins here %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\headings}[4]{
+{\bf CSE548: Analysis of Algorithms, Fall 2025} \hfill {{\bf Lecturer:} #1}\\
+{{\bf Topic:} #2} \hfill {{\bf Date:} #3} \\
+{{\bf Scribe:} #4}\\
+\rule[0.1in]{\textwidth}{0.025in}
+%\thispagestyle{empty}
+}
+
+\begin{document}
+
+\headings{Name of the Lecturer}{Lecture Topic}{Lecture Date}{Name of the Scribe}
+\newcommand{\lecnum}{5}  % Lecture Number
+
+\section{This is the First Section of Lecture \lecnum}
+
+The text goes here.
+
+Here is how to include a theorem with a proof.
+
+\begin{theorem}
+ When executed with $p$ processors,
+ multithreaded IGEP performs $T_{1} = \Oh{n^3}$ work and terminates
+ in ${\frac{T_{1}}{p}} + T_{\infty} = \Oh{\frac{n^3}{p}} + n\log^{2}{n}$
+ parallel steps on an $n \times n$ input matrix.
+\label{thm:igep}
+\end{theorem}
+
+\begin{proof}
+This is a proof of Theorem \ref{thm:igep}.
+\end{proof}
+
+
+This is how to include {\tt eps} files that can be generated using {\tt xfig}.
+
+\begin{figure}[h]
+\begin{center}
+%\epsfig{file = figs/testfig.eps, height = 1in}
+\figcaption{Include EPS files.} 
+\end{center}
+\end{figure}
+
+
+You can include {\tt{pdf}}, {\tt{jpg}}, {\tt{png}} files as follows.
+
+\begin{figure*}[h!]
+\centering
+%\includegraphics[width=\textwidth]{figs/testfig.pdf}
+\figcaption{Include PDF/JPG/PNG files.} 
+\label{fig:example-figure}
+\end{figure*}
+
+
+Figure \ref{fig:ApproxInterfaceArea} shows how to write pseudocode.
+
+ \begin{figure*}[t!] 
+%
+ \begin{minipage}{\textwidth}
+ \begin{center}
+ \framebox{
+ \begin{minipage}{\textwidth}
+ {\scriptsize
+ \vspace{-0.2cm}
+ \medskip\noindent\func{CollectInterfacePatches$(~x, ~y, ~\m{PG}~)$}
+
+ \vspace{0.1cm}
+ \noindent
+(Inputs are two octree nodes $x \in \m{T}_{S_A}$ and $y \in \m{T}_{S_B}$.
+The function collects all interface patches of $S_A$ and $S_B$
+in a packing grid data structure $\m{PG}$.
+%
+By $\func{child}(x)$ (resp. $\func{child}(y)$) we denote the set of non-empty octree nodes obtained by
+subdividing node $x$ (resp. $y$). We denote by $r_{x, y}$ the distance between the
+centers of $x$ and $y$.)
+
+ \vspace{0.2cm}
+ \noindent
+ \begin{enumerate}
+
+ \item \xif $r_{x,y} - (r_{x} + r_{y}) \geq \mu$ \xthen \xreturn
+%
+             \comment{too far: no interface between $\m{N}_x$ and $\m{N}_y$}
+
+ \item \xelse \xif $\func{leaf}(x)$ $\wedge$ $\func{leaf}(y)$ \xthen 
+%
+             \comment{collect interface patches, if any}
+
+             \T\T \xfor each $\pi \in \m{N}_x$ \xdo
+
+              \T\T\T \xif $\left( \pi \notin \m{PG} \right) \wedge \exists_{p \in \m{PG}_{y}}{\left( dist( c_{\pi}, p ) < \mu \right)} $ \xthen
+ %
+                        insert $\pi$ into $\m{PG}$
+%
+             \comment{collect interface patches of $S_A$}
+ 
+              \T\T \xfor each $\pi \in \m{N}_y$ \xdo
+ 
+              \T\T\T \xif $\left( \pi \notin \m{PG} \right) \wedge \exists_{p \in \m{PG}_{x}}{\left( dist( c_{\pi}, p ) < \mu \right)} $ \xthen
+% 
+                        insert $\pi$ into $\m{PG}$
+%
+             \comment{collect interface patches of $S_B$}
+
+ \item \T ~\xelse \xif $\func{leaf}(x)$ \xthen 
+
+             \T\T\T \xfor each $cy \in \func{child}(y)$ \xdo $\func{CollectInterfacePatches}(~x, ~cy, ~\m{PG}~)$
+%
+             \comment{recursive collection}
+
+ \item \T\T ~\xelse \xif $\func{leaf}(y)$ \xthen
+
+             \T\T\T\T \xfor each $cx \in \func{child}(x)$ \xdo $\func{CollectInterfacePatches}(~cx, ~y, ~\m{PG}~)$
+%
+             \comment{recursive collection}
+
+ \item \T\T\T ~\xelse 
+%
+              \xfor all $cx \in \func{child}(x)$ \xand $cy \in \func{child}(y)$ \xdo 
+
+               \T\T\T\T\T $\func{CollectInterfacePatches}(~cx, ~cy, ~\m{PG}~)$
+%
+             \comment{recursive collection}
+
+ \end{enumerate}
+ \medskip\noindent{\func{CollectInterfacePatches Ends}}
+ }
+ \end{minipage}
+ }
+ \end{center}
+ \end{minipage}
+
+ \begin{minipage}{\textwidth}
+ \begin{center}
+ \framebox{
+ \begin{minipage}{\textwidth}
+ {\scriptsize
+ \vspace{-0.2cm}
+ \medskip\noindent\func{ApproxInterfaceArea$(~A, ~B~)$}
+
+ \vspace{0.1cm}
+ \noindent
+(Inputs are two molecules $A$ and $B$. We assume that for each 
+molecule $P \in \{ A, B \}$, the octree $\m{T}_{S_{P}}$
+and the packing grid $\m{PG}_{S_{P}}$
+based on the patches on its surface $S_{P}$
+have already been constructed.
+The function evaluates and returns $InterfaceArea( A, B )$.)
+
+ \vspace{0.2cm}
+ \noindent
+ \begin{enumerate}
+
+ \item initialize an empty packing grid $\m{PG}$
+ %
+ \comment{for collecting interface patches without any duplicates}
+
+ \item $\func{CollectInterfacePatches}(~\func{root}(\m{T}_{S_A}),~\func{root}(\m{T}_{S_B}), ~\m{PG}~)$
+ %
+ \comment{collect the interface patches in $\m{PG}$}
+
+ \item \xreturn $\sum_{\pi \in \m{PG}}{a_{\pi}}$
+ %
+ \comment{sum up the patch areas and return}
+
+ \end{enumerate}
+ \medskip\noindent{\func{ApproxInterfaceArea Ends}}
+ }
+ \end{minipage}
+ }
+ \end{center}
+ \end{minipage}
+
+ \figcaption{\small {\sc(Example Pseudocode)} Identify the interface patches on $S_A$ and $S_B$ 
+ and return the sum of their areas. 
+ The function \func{CollectInterfacePatches$(~x, ~y, ~\m{PG}~)$}
+ collects in $\m{PG}$ (without duplicates) each patch from $\m{N}_x$ 
+ that is within distance $\mu$ from at least one patch in $\m{N}_y$ 
+ (center to center distance), and vice versa. 
+ The initial call is $\func{CollectInterfacePatches}(~\func{root}(\m{T}_{S_A}),~\func{root}(\m{T}_{S_B}), ~\m{PG}~)$
+ for computing $InterfaceArea( A, B )$.}
+ \label{fig:ApproxInterfaceArea}
+ \end{figure*}
+
+\end{document}

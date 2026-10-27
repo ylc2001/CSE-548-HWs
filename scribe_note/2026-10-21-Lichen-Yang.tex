@@ -1,0 +1,537 @@
+\documentclass[11pt]{article}
+
+\usepackage{epsfig}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amstext}
+\usepackage{amsmath}
+\usepackage{xspace}
+\usepackage{theorem}
+\usepackage{times}
+\usepackage{graphicx}
+
+%\usepackage{layout}% if you want to see the layout parameters
+                     % and now use \layout command in the body
+
+% This is the stuff for normal spacing
+\makeatletter
+ \setlength{\textwidth}{6.5in}
+ \setlength{\oddsidemargin}{0in}
+ \setlength{\evensidemargin}{0in}
+ \setlength{\topmargin}{0.25in}
+ \setlength{\textheight}{8.25in}
+ \setlength{\headheight}{0pt}
+ \setlength{\headsep}{0pt}
+ \setlength{\marginparwidth}{59pt}
+
+ \setlength{\parindent}{0pt}
+ \setlength{\parskip}{5pt plus 1pt}
+ \setlength{\theorempreskipamount}{5pt plus 1pt}
+ \setlength{\theorempostskipamount}{0pt}
+ \setlength{\abovedisplayskip}{8pt plus 3pt minus 6pt}
+
+ \renewcommand{\section}{\@startsection{section}{1}{0mm}%
+                                   {2ex plus -1ex minus -.2ex}%
+                                   {1.3ex plus .2ex}%
+                                   {\normalfont\Large\bfseries}}%
+ \renewcommand{\subsection}{\@startsection{subsection}{2}{0mm}%
+                                     {1ex plus -1ex minus -.2ex}%
+                                     {1ex plus .2ex}%
+                                     {\normalfont\large\bfseries}}%
+ \renewcommand{\subsubsection}{\@startsection{subsubsection}{3}{0mm}%
+                                     {1ex plus -1ex minus -.2ex}%
+                                     {1ex plus .2ex}%
+                                     {\normalfont\normalsize\bfseries}}
+ \renewcommand{\paragraph}{\@startsection{paragraph}{4}{0mm}%
+                                    {1ex \@plus1ex \@minus.2ex}%
+                                    {-1em}%
+                                    {\normalfont\normalsize\bfseries}}
+ \renewcommand{\subparagraph}{\@startsection{subparagraph}{5}{\parindent}%
+                                       {2.0ex \@plus1ex \@minus .2ex}%
+                                       {-1em}%
+                                      {\normalfont\normalsize\bfseries}}
+\makeatother
+
+\newenvironment{proof}{{\bf Proof:  }}{\hfill\rule{2mm}{2mm}}
+\newenvironment{proofof}[1]{{\bf Proof of #1:  }}{\hfill\rule{2mm}{2mm}}
+\newenvironment{proofofnobox}[1]{{\bf#1:  }}{}
+\newenvironment{example}{{\bf Example:  }}{\hfill\rule{2mm}{2mm}}
+\renewcommand{\thesection}{\arabic{section}}
+
+\renewcommand{\theequation}{\thesection.\arabic{equation}}
+\renewcommand{\thefigure}{\thesection.\arabic{figure}}
+
+\newtheorem{fact}{Fact}[section]
+\newtheorem{lemma}[fact]{Lemma}
+\newtheorem{theorem}[fact]{Theorem}
+\newtheorem{definition}[fact]{Definition}
+\newtheorem{corollary}[fact]{Corollary}
+\newtheorem{proposition}[fact]{Proposition}
+\newtheorem{claim}[fact]{Claim}
+\newtheorem{exercise}[fact]{Exercise}
+
+% math notations
+\newcommand{\R}{\ensuremath{\mathbb R}}
+\newcommand{\Z}{\ensuremath{\mathbb Z}}
+\newcommand{\N}{\ensuremath{\mathbb N}}
+\newcommand{\F}{\ensuremath{\mathcal F}}
+\newcommand{\SymGrp}{\ensuremath{\mathfrak S}}
+
+\newcommand{\size}[1]{\ensuremath{\left|#1\right|}}
+\newcommand{\ceil}[1]{\ensuremath{\left\lceil#1\right\rceil}}
+\newcommand{\floor}[1]{\ensuremath{\left\lfloor#1\right\rfloor}}
+\newcommand{\poly}{\operatorname{poly}}
+\newcommand{\polylog}{\operatorname{polylog}}
+
+% asymptotic notations
+\newcommand{\Oh}[1]{{\mathcal O}\left({#1}\right)}
+\newcommand{\LOh}[1]{{\mathcal O}\left({#1}\right.}
+\newcommand{\ROh}[1]{{\mathcal O}\left.{#1}\right)}
+\newcommand{\oh}[1]{{o}\left({#1}\right)}
+\newcommand{\Om}[1]{{\Omega}\left({#1}\right)}
+\newcommand{\om}[1]{{\omega}\left({#1}\right)}
+\newcommand{\Th}[1]{{\Theta}\left({#1}\right)}
+
+
+% pseudocode notations
+\newcommand{\xif}{{\bf{\em{if~}}}}
+\newcommand{\xthen}{{\bf{\em{then~}}}}
+\newcommand{\xelse}{{\bf{\em{else~}}}}
+\newcommand{\xelseif}{{\bf{\em{elif~}}}}
+\newcommand{\xfi}{{\bf{\em{fi~}}}}
+\newcommand{\xcase}{{\bf{\em{case~}}}}
+\newcommand{\xendcase}{{\bf{\em{endcase~}}}}
+\newcommand{\xfor}{{\bf{\em{for~}}}}
+\newcommand{\xto}{{\bf{\em{to~}}}}
+\newcommand{\xby}{{\bf{\em{by~}}}}
+\newcommand{\xdownto}{{\bf{\em{downto~}}}}
+\newcommand{\xdo}{{\bf{\em{do~}}}}
+\newcommand{\xrof}{{\bf{\em{rof~}}}}
+\newcommand{\xwhile}{{\bf{\em{while~}}}}
+\newcommand{\xendwhile}{{\bf{\em{endwhile~}}}}
+\newcommand{\xand}{{\bf{\em{and~}}}}
+\newcommand{\xor}{{\bf{\em{or~}}}}
+\newcommand{\xerror}{{\bf{\em{error~}}}}
+\newcommand{\xreturn}{{\bf{\em{return~}}}}
+\newcommand{\xparallel}{{\bf{\em{parallel~}}}}
+\newcommand{\T}{\hspace{0.5cm}}
+\newcommand{\m}{\mathcal}
+
+\def\sland{~\land~}
+\def\slor{~\lor~}
+\def\sRightarrow{~\Rightarrow~}
+
+\def\comment#1{\hfill{$\left\{\textrm{{\em{#1}}}\right\}$}}
+\def\lcomment#1{\hfill{$\left\{\textrm{{\em{#1}}}\right.$}}
+\def\rcomment#1{\hfill{$\left.\textrm{{\em{#1}}}\right\}$}}
+\def\fcomment#1{\hfill{$\textrm{{\em{#1}}}$}}
+\def\func#1{\textrm{\bf{\sc{#1}}}}
+\def\funcbf#1{\textrm{\textbf{\textsc{#1}}}}
+
+\newcommand{\hide}[1]{}
+
+\newcommand{\prob}[1]{\ensuremath{\text{{\bf Pr}$\left[#1\right]$}}}
+\newcommand{\expct}[1]{\ensuremath{\text{{\bf E}$\left[#1\right]$}}}
+\newcommand{\Event}{{\mathcal E}}
+
+\newcommand{\mnote}[1]{\normalmarginpar \marginpar{\tiny #1}}
+
+\makeatletter
+   \newcommand\figcaption{\def\@captype{figure}\caption}
+   \newcommand\tabcaption{\def\@captype{table}\caption}
+\makeatother
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Document begins here %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\headings}[4]{
+{\bf CSE548: Analysis of Algorithms, Fall 2026} \hfill {{\bf Lecturer:} #1}\\
+{{\bf Topic:} #2} \hfill {{\bf Date:} #3} \\
+{{\bf Scribe:} #4}\\
+\rule[0.1in]{\textwidth}{0.025in}
+%\thispagestyle{empty}
+}
+
+\begin{document}
+
+\headings{Rezaul A. Chowdhury}{Generating Functions}{October 21, 2026}{Lichen Yang}
+
+
+The lecture continued the study of generating functions: it revisited a constrained
+counting problem, derived a closed form for Fibonacci numbers, and began the
+average-case analysis of deterministic Quicksort. The main technique is to encode
+a sequence as a power series, manipulate that series algebraically, and recover
+information about the sequence from its coefficients.
+
+\section{Generating Functions and a Counting Problem}
+
+\subsection{Representing a sequence}
+
+The ordinary generating function of a sequence $s_0,s_1,s_2,\ldots$ is the formal
+power series
+\[
+ S(z)=\sum_{n=0}^{\infty}s_nz^n
+     =s_0+s_1z+s_2z^2+\cdots.
+\]
+Thus $s_n$ is the coefficient of $z^n$, written $[z^n]S(z)$. The variable $z$
+keeps track of the index; in a counting problem it records the number of objects
+selected. We manipulate these series formally, so convergence is not needed for
+coefficient identities. If interpreted as a numerical series, the geometric
+identity below holds for $|z|<1$:
+\[
+ \frac{1}{1-z}=\sum_{n=0}^{\infty}z^n.
+\]
+Differentiating term by term and shifting the index gives the useful identity
+\begin{equation}
+ \frac{1}{(1-z)^2}
+ =\sum_{n=1}^{\infty}nz^{n-1}
+ =\sum_{n=0}^{\infty}(n+1)z^n.
+ \label{eq:geometric-derivative}
+\end{equation}
+
+\subsection{The fruit-selection problem}
+
+How many ways are there to buy exactly $n$ fruits under the following constraints?
+The two apples are distinguishable by color; for the other fruits, only the
+quantity selected matters.
+\begin{itemize}
+ \item \textbf{Apples:} one red and one green apple are available. There is one
+ way to take none, two ways to take one, and one way to take both:
+ \[
+  A(z)=1+2z+z^2=(1+z)^2.
+ \]
+ \item \textbf{Bananas:} only three bananas are not rotten, so one may take
+ $0,1,2$, or $3$:
+ \[
+  B(z)=1+z+z^2+z^3=\frac{1-z^4}{1-z}.
+ \]
+ \item \textbf{Figs:} any number of packs of six may be purchased:
+ \[
+  F(z)=1+z^6+z^{12}+\cdots=\frac{1}{1-z^6}.
+ \]
+ \item \textbf{Mangoes:} they are sold in pairs, with at most two pairs allowed:
+ \[
+  M(z)=1+z^2+z^4=\frac{1-z^6}{1-z^2}.
+ \]
+ \item \textbf{Peaches:} any number of packs of four may be purchased:
+ \[
+  P(z)=1+z^4+z^8+\cdots=\frac{1}{1-z^4}.
+ \]
+\end{itemize}
+
+Let $s_n$ count the valid selections of $n$ fruits. Independent choices are
+combined by multiplying their generating functions. For example, a choice of
+$a$ apples and $b$ bananas contributes to the coefficient of $z^{a+b}$, and
+the number of such combined choices is the product of the two coefficients.
+Summing over all possible quantities is exactly what polynomial multiplication
+does. Therefore
+\begin{align*}
+ S(z)&=A(z)B(z)F(z)M(z)P(z)\\
+ &= (1+z)^2\frac{1-z^4}{1-z}\frac{1}{1-z^6}
+       \frac{1-z^6}{1-z^2}\frac{1}{1-z^4}\\
+ &=\frac{(1+z)^2}{(1-z)(1-z^2)}
+  =\frac{1+z}{(1-z)^2}.
+\end{align*}
+Using equation~\eqref{eq:geometric-derivative},
+\[
+ S(z)=(1+z)\sum_{n=0}^{\infty}(n+1)z^n
+     =\sum_{n=0}^{\infty}(2n+1)z^n.
+\]
+For $n\geq 1$, the two contributions to the coefficient are $n+1$ and $n$;
+for $n=0$, the coefficient is $1$. Hence in every case
+\[
+ \boxed{s_n=2n+1\qquad(n\geq 0).}
+\]
+
+\section{Fibonacci Numbers}
+
+\subsection{Encoding the recurrence}
+
+The Fibonacci sequence is defined by
+\[
+ f_0=0,\qquad f_1=1,\qquad f_n=f_{n-1}+f_{n-2}\quad(n\geq 2),
+\]
+so its first terms are $0,1,1,2,3,5,8,\ldots$. For convenience set $f_n=0$
+for $n<0$. With \emph{Iverson bracket} notation,
+\[
+ [E]=\begin{cases}1,&\text{if the statement $E$ is true},\\
+                  0,&\text{otherwise},\end{cases}
+\]
+all initial conditions and the recurrence can be written as a single formula:
+\begin{equation}
+ f_n=f_{n-1}+f_{n-2}+[n=1]\qquad(n\geq 0).
+ \label{eq:fib-recurrence}
+\end{equation}
+For $n=0$ the right side is zero; for $n=1$ the bracket supplies the initial
+value $1$; for $n\geq2$ the usual recurrence remains.
+
+In this section, let $F(z)$ denote the generating function of the Fibonacci
+sequence (rather than the fig-selection function used above):
+\[
+ F(z)=\sum_{n=0}^{\infty}f_nz^n.
+\]
+Multiply equation~\eqref{eq:fib-recurrence} by $z^n$ and sum over $n\geq 0$:
+\begin{align*}
+ F(z)
+ &=\sum_{n=0}^{\infty}f_{n-1}z^n
+   +\sum_{n=0}^{\infty}f_{n-2}z^n
+   +\sum_{n=0}^{\infty}[n=1]z^n\\
+ &=\sum_{n=1}^{\infty}f_{n-1}z^n
+   +\sum_{n=2}^{\infty}f_{n-2}z^n+z\\
+ &=z\sum_{m=0}^{\infty}f_mz^m
+   +z^2\sum_{m=0}^{\infty}f_mz^m+z\\
+ &=zF(z)+z^2F(z)+z.
+\end{align*}
+The omitted terms vanish because negative-index Fibonacci numbers are zero.
+Rearranging yields
+\begin{equation}
+ \boxed{F(z)=\frac{z}{1-z-z^2}.}
+ \label{eq:fib-gf}
+\end{equation}
+This is a closed form for the generating function. To obtain a closed form for
+$f_n$, we still need to extract its coefficient of $z^n$.
+
+\subsection{Factoring and extracting coefficients}
+
+Write
+\[
+ 1-z-z^2=(1-\varphi z)(1-\widehat\varphi z).
+\]
+Comparing coefficients gives
+\[
+ \varphi+\widehat\varphi=1,\qquad
+ \varphi\widehat\varphi=-1.
+\]
+Substituting $\widehat\varphi=1-\varphi$ gives
+$\varphi^2-\varphi-1=0$. By the quadratic formula, the two values are
+\[
+ \varphi=\frac{1+\sqrt5}{2},\qquad
+ \widehat\varphi=\frac{1-\sqrt5}{2},\qquad
+ \varphi-\widehat\varphi=\sqrt5.
+\]
+Here $\varphi\approx1.618$ is the golden ratio and
+$\widehat\varphi\approx-0.618$. Partial fractions turn
+ equation~\eqref{eq:fib-gf} into geometric series:
+\begin{align*}
+ F(z)
+ &=\frac{1}{\varphi-\widehat\varphi}
+   \left(\frac{1}{1-\varphi z}
+             -\frac{1}{1-\widehat\varphi z}\right)\\
+ &=\frac{1}{\sqrt5}
+   \left(\sum_{n=0}^{\infty}\varphi^n z^n
+             -\sum_{n=0}^{\infty}\widehat\varphi^{\,n}z^n\right)\\
+ &=\sum_{n=0}^{\infty}
+       \frac{\varphi^n-\widehat\varphi^{\,n}}{\sqrt5}z^n.
+\end{align*}
+Equating coefficients proves the following formula.
+\begin{theorem}[Closed form for Fibonacci numbers]
+For every integer $n\geq0$,
+\[
+ \boxed{f_n=\frac{\varphi^n-\widehat\varphi^{\,n}}{\sqrt5}
+ =\frac{1}{\sqrt5}\left(\frac{1+\sqrt5}{2}\right)^n
+  -\frac{1}{\sqrt5}\left(\frac{1-\sqrt5}{2}\right)^n.}
+\]
+\end{theorem}
+
+\subsection{Why the iterative algorithm takes quadratic bit time}
+
+The straightforward algorithm computes the sequence in increasing index order:
+\begin{quote}
+\func{Fibonacci$(n)$}\\
+\xif $n=0$ \xthen \xreturn $0$\\
+$f_0\leftarrow0$; $f_1\leftarrow1$\\
+\xfor $i\leftarrow2$ \xto $n$ \xdo\\
+\T $f_i\leftarrow f_{i-1}+f_{i-2}$\\
+\xreturn $f_n$
+\end{quote}
+There are $\Theta(n)$ additions, but they are not constant-time operations on
+arbitrarily large integers. Since $|\widehat\varphi|<1$ and $\varphi>1$,
+\[
+ f_n\sim\frac{\varphi^n}{\sqrt5},\qquad
+ \log_2 f_n=n\log_2\varphi-\log_2\sqrt5+o(1)=\Theta(n).
+\]
+Consequently, the binary representation of $f_n$ has $\Theta(n)$ bits.
+At iteration $i$, ordinary binary addition operates on $\Theta(i)$-bit integers
+and takes $\Theta(i)$ bit operations. Thus the total cost is
+\[
+ \sum_{i=2}^{n}\Theta(i)=\boxed{\Theta(n^2)}.
+\]
+Only the two preceding values need to be retained, so storing the entire array
+is unnecessary. This saves storage but does not change the number or size of
+the additions.
+
+The closed form likewise does not give a constant-time exact algorithm:
+merely writing the binary answer requires $\Omega(n)$ time. Repeated squaring
+can reduce the number of multiplications needed for exponentiation to
+$O(\log n)$, but the sizes of the operands and the precision needed for an exact
+answer still matter. The lecture left faster computation as a question to
+consider and noted that Fibonacci numbers would reappear in the analysis of
+Fibonacci heaps.
+
+\section{Average-Case Analysis of Deterministic Quicksort}
+
+\subsection{The algorithm and stable partitioning}
+
+The input is an array $A[1:n]$ of $n$ distinct, comparable values. The goal is
+to rearrange them in increasing order. The variant considered in this lecture
+always uses the \emph{first} element as its pivot.
+\begin{enumerate}
+ \item If $n\leq1$, return: the array is already sorted.
+ \item Choose the pivot $x=A[1]$.
+ \item Compare each of the other $n-1$ elements with $x$ and stably partition
+ the array as $L,x,R$, where all values in $L$ are smaller than $x$ and all
+ values in $R$ are larger.
+ \item Recursively sort $L$ and $R$.
+\end{enumerate}
+If the pivot has rank $k$, it ends at position $k$, and the two recursive
+subproblems have sizes $k-1$ and $n-k$. After both are sorted, the entire array
+is sorted; no merging step is needed.
+
+\textbf{Stable partitioning} means that two elements which end up in the same
+partition retain their original relative order. Elements ending up on opposite
+sides need not retain that order. A stable partition is straightforward with
+an auxiliary array. The analysis below counts element comparisons; it does not
+assume that this particular stable implementation uses constant auxiliary space.
+
+\subsection{Best and worst cases}
+
+The split sizes determine the shape of the recursion tree. If every pivot is
+the smallest or largest remaining element, one side is empty and the other has
+one fewer element. For example, an increasing input has this behavior when the
+first element is always chosen. Its comparison count is
+\[
+ (n-1)+(n-2)+\cdots+1=\frac{n(n-1)}{2}=\Theta(n^2).
+\]
+When the splits are balanced, the tree has $\Theta(\log n)$ levels, with at
+most $O(n)$ partitioning work per level, and the total is $\Theta(n\log n)$.
+The corresponding balanced recurrence is
+\[
+ B(n)=B\!\left(\left\lfloor\frac{n-1}{2}\right\rfloor\right)
+     +B\!\left(\left\lceil\frac{n-1}{2}\right\rceil\right)+(n-1).
+\]
+Thus Quicksort has quadratic worst-case behavior but $\Theta(n\log n)$
+best-case behavior. Its good practical performance motivates asking what
+happens \emph{on average}. The lecturer stated that the average is also
+$\Theta(n\log n)$ and began a generating-function derivation of this result.
+
+\subsection{Reducing the inputs to permutations of ranks}
+
+Quicksort is comparison-based. Replacing every input value by its rank
+preserves every comparison result, hence every branch and the number of
+comparisons performed. For example,
+\[
+ (40,10,30,20)\quad\longmapsto\quad(4,1,3,2)
+\]
+produces the same comparison behavior. This replacement is a device for the
+analysis, not a preprocessing step performed by the algorithm.
+
+We may therefore restrict attention to the $n!$ permutations of
+$\{1,\ldots,n\}$. Let $C(\pi)$ denote the number of comparisons on permutation
+$\pi$, and let $\mathfrak S_n$ be the set of these permutations. Define
+\[
+ t_n=\frac{1}{n!}\sum_{\pi\in\mathfrak S_n}C(\pi),\qquad t_0=t_1=0.
+\]
+This is an arithmetic average over inputs for a \emph{deterministic} algorithm.
+There is no random pivot choice. In particular, the averaging factor derived
+below comes from counting permutations, not from random choices made during
+execution. The analysis of randomized Quicksort was deferred to a later lecture.
+
+\subsection{Deriving the recurrence}
+
+Fix the first element to be $k$. The remaining $n-1$ values can appear in
+$(n-1)!$ orders, so exactly $(n-1)!$ input permutations use $k$ as the pivot.
+Partitioning costs $n-1$ comparisons and leaves subproblems of sizes $k-1$
+and $n-k$.
+
+To justify using $t_{k-1}$ and $t_{n-k}$ for the recursive costs, consider any
+fixed ordering of the $k-1$ smaller elements and any fixed ordering of the
+$n-k$ larger elements. There are
+\[
+ \binom{n-1}{k-1}
+\]
+ways to interleave those two orders after the pivot. Stable partitioning
+recovers those same two orders. This number is independent of the chosen
+orders, so each ordering of either subproblem occurs equally often when we
+average over the inputs beginning with $k$. Their average recursive costs are
+therefore $t_{k-1}$ and $t_{n-k}$.
+
+Summing the costs for all possible first elements and dividing by $n!$ gives,
+for $n\geq1$,
+\begin{align*}
+ t_n
+ &=\frac{1}{n!}\sum_{k=1}^{n}(n-1)!
+       \bigl((n-1)+t_{k-1}+t_{n-k}\bigr)\\
+ &=\frac{1}{n}\sum_{k=1}^{n}
+       \bigl((n-1)+t_{k-1}+t_{n-k}\bigr)\\
+ &=n-1+\frac{1}{n}\sum_{k=1}^{n}(t_{k-1}+t_{n-k}).
+\end{align*}
+Here $(n-1)!/n!=1/n$. Also, $\sum_{k=1}^{n}(n-1)=n(n-1)$:
+the summand $n-1$ is constant with respect to $k$, so this is not the
+sum $1+2+\cdots+(n-1)$.
+
+As $k$ goes from $1$ to $n$, the terms $t_{k-1}$ run from $t_0$ to $t_{n-1}$,
+while $t_{n-k}$ runs through exactly the same list in reverse. Thus
+\begin{equation}
+ \boxed{t_0=0,\qquad
+ t_n=n-1+\frac{2}{n}\sum_{k=0}^{n-1}t_k\quad(n\geq1).}
+ \label{eq:quicksort-recurrence}
+\end{equation}
+The recurrence itself gives $t_1=0$. For example, $t_2=1$ and
+$t_3=2+\frac23(t_0+t_1+t_2)=\frac83$, consistent with averaging over the
+six permutations of three values.
+
+\subsection{Solving the recurrence with generating functions}
+
+Let
+\[
+ T(z)=\sum_{n=0}^{\infty}t_nz^n.
+\]
+Since $t_0=0$, substituting equation~\eqref{eq:quicksort-recurrence} gives
+\[
+ T(z)=t_0+\sum_{n=1}^{\infty}
+       \left(n-1+\frac{2}{n}\sum_{k=0}^{n-1}t_k\right)z^n.
+\]
+The factor $1/n$ suggests differentiating: the derivative of $z^n$ supplies
+exactly the factor $n$ needed to cancel it. This yields
+\begin{equation}
+ T'(z)=\sum_{n=1}^{\infty}
+       \left(n(n-1)+2\sum_{k=0}^{n-1}t_k\right)z^{n-1}.
+ \label{eq:quicksort-derivative}
+\end{equation}
+The index $n$ varies inside the sum, so one cannot simply multiply the whole
+generating-function identity by a single $n$. Differentiation performs the
+required multiplication separately on each coefficient.
+
+To complete the analysis, the geometric-series identities simplify
+ equation~\eqref{eq:quicksort-derivative} to
+\[
+ T'(z)=\frac{2z}{(1-z)^3}+\frac{2T(z)}{1-z},
+ \qquad
+ \frac{d}{dz}\bigl((1-z)^2T(z)\bigr)=\frac{2z}{1-z}.
+\]
+Here the prefix sums contribute $T(z)/(1-z)$, since
+$\sum_{n\geq1}\sum_{k=0}^{n-1}t_kz^{n-1}
+=\sum_{k\geq0}t_kz^k\sum_{j\geq0}z^j$.
+Integrating and using $T(0)=t_0=0$ gives
+\[
+ T(z)=\frac{-2\ln(1-z)-2z}{(1-z)^2}
+     =2\left(\sum_{k=2}^{\infty}\frac{z^k}{k}\right)
+        \left(\sum_{j=0}^{\infty}(j+1)z^j\right).
+\]
+Extracting the coefficient of $z^n$, for $n\geq1$, yields
+\[
+ t_n=2\sum_{k=2}^{n}\frac{n+1-k}{k}
+     =2(n+1)H_n-4n,
+ \qquad H_n=\sum_{k=1}^{n}\frac1k.
+\]
+The harmonic-number bounds $\ln(n+1)\leq H_n\leq1+\ln n$ imply
+$H_n=\ln n+O(1)$. Therefore
+\[
+ \boxed{t_n=2(n+1)H_n-4n=2n\ln n+O(n)=\Theta(n\log n).}
+\]
+Thus deterministic Quicksort performs $\Theta(n\log n)$ comparisons on average
+ over all input permutations, despite its $\Theta(n^2)$ worst case.
+
+\end{document}
